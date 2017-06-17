@@ -6,7 +6,9 @@ CAT=cat
 RM=rm -f
 
 $(TARGET): $(OBJS)
-	$(CAT) $(OBJS) > $(TARGET)
+	dd if=/dev/zero of=$@ count=1000
+	dd if=boot.bin of=$@ conv=notrunc
+	dd if=boot2.bin of=$@ seek=1 conv=notrunc
 
 SUFFIXES: .asm .bin
 .asm .bin:

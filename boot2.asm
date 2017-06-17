@@ -46,4 +46,3 @@ pop di
 ret
 
 
-times 512-($-$$) db 0
