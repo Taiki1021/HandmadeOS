@@ -5,14 +5,13 @@
 jmp 0x07C0:start
 
 start:
-mov ax,cs
+mov ax,cs ;ds,ssをcsに合わせる
 mov ds,ax
-xor ax,ax
 mov ss,ax
 
 cli
 
-mov ax,0x1000
+mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの2番目のセクタをHead=0で読み込む
 mov es,ax
 mov bx,0
 mov ah,2
@@ -25,17 +24,17 @@ int 0x13
 
 lgdt [gdtr]
 
-mov eax,cr0
-or eax,0x00000001
+mov eax,cr0		
+or eax,0x00000001	;保護モードに入る
 mov cr0,eax
 
-jmp $+2
+jmp $+2	
 nop
 nop
 
 db 0x66
 db 0x67
-jmp DWORD SysCodeSelecter:0000
+jmp DWORD SysCodeSelecter:0000	;読み込んだプログラムに飛ぶ
 
 ;========GDT==========================================
 
