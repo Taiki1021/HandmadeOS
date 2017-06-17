@@ -17,7 +17,7 @@ mov bx,0
 mov ah,2
 mov al,1
 mov ch,0
-mov cl,1
+mov cl,2
 mov dh,0
 mov dl,0
 int 0x13
