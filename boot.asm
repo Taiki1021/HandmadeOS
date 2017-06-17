@@ -41,7 +41,7 @@ jmp DWORD SysCodeSelecter:0000	;読み込んだプログラムに飛ぶ
 
 gdtr:
 dw gdt_end-gdt-1
-dd gdt
+dd gdt+0x07C0
 
 gdt: 
 dw 0
