@@ -1,3 +1,4 @@
+%include"selector.inc"
 [org 0]
 [bits 16]
 
@@ -51,7 +52,7 @@ db 0
 db 0
 db 0
 
-SysCodeSelecter equ 0x08
+;SysCodeSelecter
 dw 0xFFFF
 dw 0x1000
 db 0x00
@@ -59,7 +60,7 @@ db 0x9A
 db 0xCF
 db 0x00
 
-SysDataSelecter equ 0x10
+;SysDataSelecter
 dw 0xFFFF
 dw 0x1000
 db 0x00
@@ -67,7 +68,7 @@ db 0x92
 db 0xCF
 db 0x00
 
-VideoSelecter  equ 0x18
+;VideoSelecter
 dw 0xFFFF
 dw 0xB800
 db 0x00

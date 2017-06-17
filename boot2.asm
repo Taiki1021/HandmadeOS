@@ -1,3 +1,4 @@
+%include"selector.inc"
 [bits 32]
 
 
@@ -52,9 +53,5 @@ FillMemory_End:
 pop bx
 pop di
 ret
-
-SysCodeSelecter equ 0x08
-SysDataSelecter equ 0x10
-VideoSelecter  equ 0x18
 
 times 512-($-$$) db 0

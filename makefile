@@ -16,9 +16,9 @@ SUFFIXES: .asm .bin
 clean:
 	$(RM) $(TARGET) $(OBJS)
 
-boot.bin:boot.asm
+boot.bin:boot.asm selector.inc
 	$(AS) $(ASFLAGS) $< -o $@
 
-boot2.bin:boot2.asm
+boot2.bin:boot2.asm selector.inc
 	$(AS) $(ASFLAGS) $< -o $@
 
