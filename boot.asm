@@ -1,4 +1,4 @@
-%include"selector.inc"
+%include"selecter.inc"
 [org 0]
 [bits 16]
 

@@ -24,5 +24,5 @@ kernel.bin: kernel.c
 	ld -o kernel -Ttext 0x00 -e main kernel.o
 	objcopy -R .note -R .comment -S -O binary kernel kernel.bin
 
-boot.bin:boot.asm selector.inc
+boot.bin:boot.asm selecter.inc
 	$(AS) $(ASFLAGS) $< -o $@
