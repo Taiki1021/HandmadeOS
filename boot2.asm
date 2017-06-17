@@ -1,7 +1,6 @@
 %include"selector.inc"
 [bits 32]
 
-
 PM_start:
 mov ax,SysDataSelecter ;各セグメントにデータセレクタの値を代入
 mov ds,ax
@@ -10,6 +9,9 @@ mov fs,ax
 mov gs,ax
 mov ss,ax
 
+
+call main
+jmp $
 mov ax,VideoSelecter	;ビデオメモリーの先頭から0x7FF個のax値を書き込む
 mov es,ax
 mov di,0

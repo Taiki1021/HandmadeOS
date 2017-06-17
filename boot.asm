@@ -32,6 +32,13 @@ jmp $+2
 nop
 nop
 
+mov ax,SysDataSelecter
+mov ds,ax
+mov es,ax
+mov fs,ax
+mov gs,ax
+mov ss,ax
+
 db 0x66
 db 0x67
 jmp DWORD SysCodeSelecter:0000	;読み込んだプログラムに飛ぶ
