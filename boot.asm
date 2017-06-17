@@ -11,13 +11,13 @@ mov ss,ax
 
 cli
 
-mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの2番目のセクタをHead=0で読み込む
+mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
 mov es,ax
 mov bx,0
 mov ah,2
 mov al,1
 mov ch,0
-mov cl,2
+mov cl,1
 mov dh,0
 mov dl,0
 int 0x13
