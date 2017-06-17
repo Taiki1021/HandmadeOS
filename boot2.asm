@@ -3,7 +3,7 @@
 
 
 PM_start:
-jmp $	;デバッグ用
+;jmp $	;デバッグ用
 mov ax,SysDataSelecter ;各セグメントにデータセレクタの値を代入
 mov ds,ax
 mov es,ax
