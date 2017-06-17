@@ -2,7 +2,7 @@
 [org 0]
 [bits 16]
 
-jmp 0x07C0:start
+jmp 0x7C00:start
 
 start:
 mov ax,cs ;ds,ssをcsに合わせる
@@ -41,7 +41,7 @@ jmp DWORD SysCodeSelecter:0000	;読み込んだプログラムに飛ぶ
 
 gdtr:
 dw gdt_end-gdt-1
-dd gdt+0x07C0
+dd gdt+0x7C00
 
 gdt: 
 dw 0
