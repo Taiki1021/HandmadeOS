@@ -1,5 +1,5 @@
 TARGET = test.img
-OBJS = boot.bin kernel.bin video.o main.o kernel kernel.bin
+OBJS = boot.bin kernel.bin segment.o main.o kernel kernel.bin
 AS = nasm
 ASFLAGS = -f bin
 CAT=cat
@@ -16,17 +16,17 @@ boot.bin:boot.asm selecter.inc
 	nasm -f bin boot.asm -o boot.bin
 
 #カーネル
-kernel.bin: main.o video.o
-	ld -m elf_i386 -o kernel -Ttext 0x00 -e main main.o video.o
+kernel.bin: main.o segment.o
+	ld -m elf_i386 -o kernel -Ttext 0x00 -e main main.o segment.o
 	objcopy -R .note -R .comment -S -O binary kernel kernel.bin
 
 
 #↓カーネル用オブジェクトファイル↓
 
-video.o:video.asm
-	nasm -f elf32 video.asm
+segment.o:segment.asm
+	nasm -f elf32 segment.asm
 
-main.o:main.c video.h
+main.o:main.c segment.h
 	gcc  -m32 main.c -c
 
 #↑カーネル用オブジェクトファイル↑
