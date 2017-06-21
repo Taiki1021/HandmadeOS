@@ -11,6 +11,7 @@ mov ss,ax
 
 cli
 
+Kernel_Load:
 mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
 mov es,ax
 mov bx,0
@@ -21,6 +22,7 @@ mov cl,2
 mov dh,0
 mov dl,0
 int 0x13
+jc Kernel_Load  ;エラーが起きた場合はリトライ
 
 lgdt [gdtr]
 
