@@ -46,4 +46,5 @@ ret
 
 
 Halt:
-	jmp $			;終了
+	HLT
+	jmp Halt		;終了
