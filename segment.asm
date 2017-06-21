@@ -13,15 +13,15 @@ WriteFar:
 
 ;es=書き込み対象のセグメント　edi=書き込み対象のオフセット　esi=書き込むデータへのポインタ　bx=書き込むデータ量
 
-	mov ax,[ss:(esp+22)]  ;es=(第一引数)
+	mov ax,[ss:(esp+24)]  ;es=(第一引数)
 	mov es,ax  
 
 
-	mov edi,[ss:(esp+26)] ;edi=(第二引数)
+	mov edi,[ss:(esp+28)] ;edi=(第二引数)
 
-	mov esi,[ss:(esp+30)] ;esi=(第三引数)
+	mov esi,[ss:(esp+32)] ;esi=(第三引数)
 
-	mov ebx,[ss:(esp+34)] ;ebx=(第四引数)
+	mov ebx,[ss:(esp+36)] ;ebx=(第四引数)
 
 WriteFar_Loop:
 	cmp ebx,0       ;While(bx!=0)
