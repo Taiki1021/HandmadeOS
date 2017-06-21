@@ -9,8 +9,6 @@ start:
 	mov ds,ax
 	mov ss,ax
 
-	cli
-
 Kernel_Load:
 	mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
 	mov es,ax
@@ -24,7 +22,15 @@ Kernel_Load:
 	int 0x13
 	jc Kernel_Load  ;エラーが起きた場合はリトライ
 
-	lgdt [gdtr]
+	mov dx,0x3F2	;フロッピーディスクのモーターの電源を切る
+	xor al,al
+	out dx,al
+
+	cli
+	mov al,0xFF	;PICですべての割り込みを防いで機能しなくする
+	out 0xA1,al
+
+	lgdt [gdtr]    ;GDTを登録
 
 	mov eax,cr0		
 	or eax,0x00000001	;保護モードに入る
