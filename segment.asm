@@ -5,7 +5,7 @@ global WriteFar
 global ReadFar
 
 WriteFar:
-;void WriteFar(unsigned short Selecter,int offset,void* src,int n);
+;void WriteFar(unsigned short Selecter,int offset,void* src,int n,int sstep,int dstep);
 	push eax 
 	push es 
 	push edi
@@ -24,6 +24,11 @@ WriteFar:
 
 	mov ebx,[ss:(esp+36)] ;ebx=(第四引数)
 
+	mov ecx,[ss:(esp+40)]
+	
+	mov edx,[ss:(esp+44)]
+
+
 WriteFar_Loop:
 	cmp ebx,0       ;While(bx!=0)
 	jz WriteFar_End 
@@ -31,8 +36,8 @@ WriteFar_Loop:
 	mov al,[ds:esi] ;[es:edi]=[ds:esi]
 	mov [es:edi],al
 
-	inc edi    ;edi++ esi++ bx--
-	inc esi
+	add edi,edx    ;edi++ esi++ bx--
+	add esi,ecx
 	dec ebx
 
 	jmp WriteFar_Loop 
@@ -46,7 +51,7 @@ WriteFar_End:
 	ret
 
 ReadFar:
-;void ReadFar(unsigned short Selecter,int offset,void* dist,int n);
+;void ReadFar(unsigned short Selecter,int offset,void* dist,int n,int sstep,int dstep);
 	push eax 
 	push es 
 	push edi
@@ -64,6 +69,10 @@ ReadFar:
 
 	mov ebx,[ss:(esp+36)] ;ebx=(第四引数)
 
+	mov ecx,[ss:(esp+40)]
+
+	mov edx,[ss:(esp+44)]
+
 ReadFar_Loop:
 	cmp ebx,0       ;While(bx!=0)
 	jz ReadFar_End 
@@ -71,8 +80,8 @@ ReadFar_Loop:
 	mov al,[es:esi]
 	mov [ds:edi],al ;[es:edi]=[ds:esi]
 
-	inc edi    ;edi++ esi++ bx--
-	inc esi
+	add edi,edx    ;edi++ esi++ bx--
+	add esi,ecx
 	dec ebx
 
 	jmp ReadFar_Loop 
