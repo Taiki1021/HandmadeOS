@@ -14,7 +14,7 @@ Kernel_Load:
 	mov es,ax
 	mov bx,0
 	mov ah,2
-	mov al,1
+	mov al,2
 	mov ch,0
 	mov cl,2
 	mov dh,0

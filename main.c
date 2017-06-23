@@ -1,7 +1,11 @@
 #include"segment.h"
 #include"selecter.h"
+#include"video.h"
 
 int main(){
-	CopyFar(VideoSelecter,(char*)0,2,SysDataSelecter,"Hello World!!",1,13);
+	int A;
+	putstr("Hello World!!\n");
+	putstr("This is a pen.\n");
+	putstr("This is it\nYes we can!!\n          I can do it!!");
 	Halt();
 }
