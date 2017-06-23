@@ -10,17 +10,33 @@ start:
 	mov ss,ax
 
 Kernel_Load:
+	mov si,4	;10セクタ読み込む
+
+	mov dh,0	;ヘッダ番号
+	mov ch,0	;シリンダ番号
+	mov cl,2	;セクタ番号
+	mov bx,0   	;ターゲットアドレス(オフセット)
+Kernel_Load_Retry:
 	mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
 	mov es,ax
-	mov bx,0
-	mov ah,2
-	mov al,3
-	mov ch,0
-	mov cl,2
-	mov dh,0
-	mov dl,0
+	mov ah,2	;読み込み
+	mov al,1      ;読み込むセクタ数
+	mov dl,0      ;Aドライブ
+
 	int 0x13
-	jc Kernel_Load  ;エラーが起きた場合はリトライ
+	jc Kernel_Load_Retry  ;エラーが起きた場合はリトライ
+	dec si			;カウンタを下げて
+	jz Kernel_Load_End	;0でなければ
+	add bx,0x200		;ターゲットのアドレスを512バイト移動
+	inc cl			;読み込むセクタ位置を一つずらす
+	cmp cl,19		;もし最後のセクタまで行ったら
+	jz Kernel_Load_inccyl   ;シリンダを移動する
+	jmp Kernel_Load_Retry
+Kernel_Load_inccyl:
+	mov cl,1
+	inc ch
+	jmp Kernel_Load_Retry
+Kernel_Load_End:
 
 	mov dx,0x3F2	;フロッピーディスクのモーターの電源を切る
 	xor al,al

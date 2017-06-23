@@ -7,7 +7,7 @@ RM=rm -f
 
 #ディスクイメージ
 $(TARGET):boot.bin kernel.bin 				
-	dd if=/dev/zero of=$@ count=4
+	dd if=/dev/zero of=$@ count=5
 	dd if=boot.bin of=$@ conv=notrunc
 	dd if=kernel.bin of=$@ seek=1 conv=notrunc
 
