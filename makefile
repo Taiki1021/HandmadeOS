@@ -7,7 +7,7 @@ RM=rm -f
 
 #ディスクイメージ
 $(TARGET):boot.bin kernel.bin 				
-	dd if=/dev/zero of=$@ count=3
+	dd if=/dev/zero of=$@ count=4
 	dd if=boot.bin of=$@ conv=notrunc
 	dd if=kernel.bin of=$@ seek=1 conv=notrunc
 
@@ -23,13 +23,13 @@ kernel.bin: main.o segment.o video.o
 
 #↓カーネル用オブジェクトファイル↓
 
-segment.o:segment.asm
+segment.o:segment.asm segment.h
 	nasm -f elf32 segment.asm
 
 main.o:main.c segment.h video.h
 	gcc  -m32 main.c -c
 
-video.o:video.c video.h
+video.o:video.c video.h segment.h
 	gcc -m32 video.c -c
 
 #↑カーネル用オブジェクトファイル↑

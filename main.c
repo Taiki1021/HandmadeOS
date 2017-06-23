@@ -4,12 +4,12 @@
 
 int main(){
 	int A=0;
-	putstr("Hello World!!\n");
-	putstr("This is a pen.\n");
-	putstr("This is it\nYes we can!!\n          I can do it!!");
-	while(1){
-		putchr(A%10+'0');
-		putchr('\n');
+	vputs("Hello World!!\n");
+	vputs("This is a pen.\n");
+	vputs("This is it\nYes we can!!\n          I can do it!!");
+	while(0){
+		vputc(A%10+'0');
+		vputc('\n');
 		A++;
 	}
 	Halt();

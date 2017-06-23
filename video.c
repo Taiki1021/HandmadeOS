@@ -2,24 +2,27 @@
 #include"selecter.h"
 #include"video.h"
 
-int Counter;
+unsigned short Counter;
 
-void putchr(char c){
+void vputc(char c){
 	int A;
 	if(c=='\n'){
-		if(Counter/80 == 24)schrool();
+		if(Counter/80 == 24)schroll();
 		Counter+=80-Counter%80;
 	}else{
-		if(Counter == 80*25-1)schrool();
+		if(Counter == 80*25-1)schroll();
 		CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&c,1,1);
 		Counter++;
 	}
-
+	outb(0x3D4,0x0F);
+	outb(0x3D5,Counter);
+	outb(0x3D4,0x0E);
+	outb(0x3D5,Counter >> 8);
 }
 
-void putstr(char* str){
+void vputs(char* str){
 	while(*str){
-		putchr(*str);
+		vputc(*str);
 		str++;
 	}
 }
@@ -31,10 +34,11 @@ void clear(){
 	Counter=0;
 }
 
-void schrool(){
+void schroll(){
 	int A;
 	for(A=0;A<24;A++){
 		CopyFar(VideoSelecter,(char*)(A*80*2),1,VideoSelecter,(char*)((A+1)*80*2),1,80);
 	}
 	Counter-=80;
 }
+

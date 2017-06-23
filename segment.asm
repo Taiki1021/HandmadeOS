@@ -60,23 +60,23 @@ Halt:
 	jmp Halt		;終了
 
 outb:
-;int outb(unsigned int port,unsigned char data);
+;int outb(unsigned short port,unsigned char data);
 	push ax
 	push dx
-	mov ax,[ss:(esp+4)]
-	mov dh,[ss:(esp+8)]
-	out ax,dh
+	mov dx,[ss:(esp+12+0)]
+	mov al,[ss:(esp+12+4)]
+	out dx,al
 	pop dx
 	pop ax
 	ret
 
 outw:
-;int outw(unsigned int port,unsigned short data);
+;int outw(unsigned short port,unsigned short data);
 	push ax
 	push dx
-	mov ax,[ss:(esp+4)]
-	mov dx,[ss:(esp+8)]
-	out ax,dx
+	mov dx,[ss:(esp+12+0)]
+	mov ax,[ss:(esp+12+4)]
+	out dx,ax 
 	pop dx
 	pop ax
 	ret

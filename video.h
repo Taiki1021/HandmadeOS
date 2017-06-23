@@ -1,4 +1,4 @@
-void putchr(char c);
-void putstr(char* str);
+void vputc(char c);
+void vputs(char* str);
 void clear();
-void schrool();
+void schroll();
