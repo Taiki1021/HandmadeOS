@@ -1,5 +1,5 @@
 TARGET = test.img
-OBJS = boot.bin kernel.bin segment.o main.o kernel kernel.bin
+OBJS = boot.bin kernel.bin segment.o main.o kernel kernel.bin video.o
 AS = nasm
 ASFLAGS = -f bin
 CAT=cat

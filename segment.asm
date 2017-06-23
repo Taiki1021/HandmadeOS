@@ -2,6 +2,10 @@
 
 global Halt
 global CopyFar
+global outb
+global outw
+global sti
+global cli
 
 CopyFar:
 ;void CopyFar(unsigned short DistSelecter,char* DistOffset,int DStep,unsigned short SrcSelecter,char* SrcOffset,int SStep,int n);
@@ -54,3 +58,35 @@ CopyFar_End:
 Halt:
 	HLT
 	jmp Halt		;終了
+
+outb:
+;int outb(unsigned int port,unsigned char data);
+	push ax
+	push dx
+	mov ax,[ss:(esp+4)]
+	mov dh,[ss:(esp+8)]
+	out ax,dh
+	pop dx
+	pop ax
+	ret
+
+outw:
+;int outw(unsigned int port,unsigned short data);
+	push ax
+	push dx
+	mov ax,[ss:(esp+4)]
+	mov dx,[ss:(esp+8)]
+	out ax,dx
+	pop dx
+	pop ax
+	ret
+
+sti:
+;void sti();
+	sti
+	ret
+
+cli:
+;void cli();
+	cli
+	ret
