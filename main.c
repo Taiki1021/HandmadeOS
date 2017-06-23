@@ -2,6 +2,6 @@
 #include"selecter.h"
 
 int main(){
-	WriteFar(VideoSelecter,0,"Hello World!!",13,1,2);
+	CopyFar(VideoSelecter,(char*)0,2,SysDataSelecter,"Hello World!!",1,13);
 	Halt();
 }
