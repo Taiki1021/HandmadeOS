@@ -76,18 +76,22 @@ int strlen(char* str){
 
 void numstr(char* out,int num){
 	char* head=out;
+	char neg=0;
 	if(num==0){
 		*head='0';
 		head++;
 	}
 	if(num<0){
-		*head='-';
-		head++;
 		num=-num;
+		neg=1;
 	}
 	while(num>0){
 		*head=num%10+'0';
 		num/=10;
+		head++;
+	}
+	if(neg){
+		*head='-';
 		head++;
 	}
 	*head=0;
@@ -96,14 +100,14 @@ void numstr(char* out,int num){
 
 void hexstr(char* out,int num,char upper){
 	char* head=out;
+	char neg=0;
 	if(num==0){
 		*head='0';
 		head++;
 	}
 	if(num<0){
-		*head='-';
-		head++;
 		num=-num;
+		neg=1;
 	}
 	while(num>0){
 		if(num%0x10<10){
@@ -116,6 +120,10 @@ void hexstr(char* out,int num,char upper){
 			}
 		}
 		num/=0x10;
+		head++;
+	}
+	if(neg){
+		*head='-';
 		head++;
 	}
 	*head=0;

@@ -12,5 +12,8 @@ int main(){
 		sformat(Buf,"No.%X\nBaseAddress:%X\nLimit:%X\n",A,GDT_GetBaseAddress(),GDT_GetLimit());
 		vputs(Buf);
 	}
+	sformat(Buf,"%d\n",-100);
+	vputs(Buf);
+
 	Halt();
 }
