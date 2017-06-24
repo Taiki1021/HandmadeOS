@@ -7,10 +7,15 @@ unsigned short Counter;
 
 void vputc(char c){
 	int A;
-	if(c=='\n'){
+	switch(c){
+	case '\t':
+		Counter=(Counter/8)*8+8;
+		break;
+	case '\n':
 		if(Counter/80 == 24)schroll();
 		Counter+=80-Counter%80;
-	}else{
+		break;
+	default:
 		if(Counter == 80*25-1)schroll();
 		CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&c,1,1);
 		Counter++;
@@ -38,6 +43,9 @@ void schroll(){
 	int A;
 	for(A=0;A<24;A++){
 		CopyFar(VideoSelecter,(char*)(A*80*2),1,VideoSelecter,(char*)((A+1)*80*2),1,80);
+	}
+	for(A=0;A<80;A++){
+		CopyFar(VideoSelecter,(char*)(24*80*2+A*2),1,SysDataSelecter," ",1,1);
 	}
 	Counter-=80;
 }
