@@ -5,6 +5,7 @@
 int main(){
 	int A=0;
 	char Buf[64];
+	clear();
 	vputs("Hello World!!\n");
 	vputs("This is a pen.\n");
 	vputs("This is it\nYes we can!!\n          I can do it!!\n");

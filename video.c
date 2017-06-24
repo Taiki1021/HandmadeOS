@@ -15,10 +15,9 @@ void vputc(char c){
 		CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&c,1,1);
 		Counter++;
 	}
-//	outb(0x3D4,0x0F);
-//	outb(0x3D5,Counter);
 //	outb(0x3D4,0x0E);
 //	outb(0x3D5,Counter >> 8);
+//	outb(0x3D5,Counter);
 }
 
 void vputs(char* str){

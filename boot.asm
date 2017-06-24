@@ -10,7 +10,7 @@ start:
 	mov ss,ax
 
 Kernel_Load:
-	mov si,4	;10セクタ読み込む
+	mov si,17	
 
 	mov dh,0	;ヘッダ番号
 	mov ch,0	;シリンダ番号
