@@ -71,6 +71,15 @@ void GDT_SetFlags(unsigned short Flags){
 }
 
 
+void IDT_Load(int no){
+	CopyFar(SysDataSelecter,&CurrentIDT,1,IDTSelecter,(void*)(8*no),1,8);
+}
+
+void IDT_Save(int no){
+	CopyFar(IDTSelecter,(void*)(8*no),1,SysDataSelecter,&CurrentIDT,1,8);
+}
+
+
 
 void IDT_Clear(){
 	CurrentIDT.Handler1=0;

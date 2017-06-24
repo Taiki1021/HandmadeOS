@@ -7,18 +7,15 @@
 
 void GDTDUMP(int A);
 
-
 int main(){
 	int A=0;
 	clear();
-	GDTDUMP(0);
-	GDTDUMP(1);
-	GDTDUMP(2);
-	GDTDUMP(3);
 	GDTDUMP(4);
-
+	GDTDUMP(5);
+	GDTDUMP(7);
 	Halt();
 }
+
 
 void GDTDUMP(int A){
 	char Buf[64];

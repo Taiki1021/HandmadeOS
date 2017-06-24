@@ -7,6 +7,8 @@ unsigned int GDT_GetLimit();
 void GDT_SetLimit(unsigned int Limit);
 unsigned short GDT_GetFlags();
 void GDT_SetFlags(unsigned short Flags);
+void IDT_Load(int no);
+void IDT_Save(int no);
 void IDT_Clear();
 unsigned int IDT_GetHandler();
 void IDT_SetHandler(unsigned int Handler);
