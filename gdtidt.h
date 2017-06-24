@@ -1,3 +1,5 @@
+void GDT_Load(int no);
+void GDT_Save(int no);
 void GDT_Clear();
 unsigned int GDT_GetBaseAddress();
 void GDT_SetBaseAddress(unsigned int BaseAddress);

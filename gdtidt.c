@@ -1,5 +1,6 @@
 #include"segment.h"
 #include"gdtidt.h"
+#include"selecter.h"
 
 struct GDT{
 	unsigned short Limit1;
@@ -22,6 +23,13 @@ struct IDT{
 struct GDT CurrentGDT;
 struct IDT CurrentIDT;
 
+void GDT_Load(int no){
+	CopyFar(SysDataSelecter,&CurrentGDT,1,GDTSelecter,(void*)(8*no),1,8);
+}
+
+void GDT_Save(int no){
+	CopyFar(GDTSelecter,(void*)(8*no),1,SysDataSelecter,&CurrentGDT,1,8);
+}
 
 void GDT_Clear(){
 	CurrentGDT.Limit1=0;

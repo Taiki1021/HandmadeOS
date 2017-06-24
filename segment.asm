@@ -8,7 +8,7 @@ global sti
 global cli
 
 CopyFar:
-;void CopyFar(unsigned short DistSelecter,char* DistOffset,int DStep,unsigned short SrcSelecter,char* SrcOffset,int SStep,int n);
+;void CopyFar(unsigned short DistSelecter,void* DistOffset,int DStep,unsigned short SrcSelecter,void* SrcOffset,int SStep,int n);
 	push eax
 	push ebx
 	push ecx

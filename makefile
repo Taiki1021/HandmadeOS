@@ -32,7 +32,7 @@ main.o:main.c segment.h video.h
 video.o:video.c video.h segment.h
 	gcc -m32 video.c -c
 
-gdtidt.o:gdtidt.c gdtidt.h segment.h
+gdtidt.o:gdtidt.c gdtidt.h segment.h selecter.h
 	gcc -m32 gdtidt.c -c
 
 #↑カーネル用オブジェクトファイル↑
