@@ -80,9 +80,42 @@ void numstr(char* out,int num){
 		*head='0';
 		head++;
 	}
+	if(num<0){
+		*head='-';
+		head++;
+		num=-num;
+	}
 	while(num>0){
 		*head=num%10+'0';
 		num/=10;
+		head++;
+	}
+	*head=0;
+	reverse(out,sizeof(char),strlen(out));
+}
+
+void hexstr(char* out,int num,char upper){
+	char* head=out;
+	if(num==0){
+		*head='0';
+		head++;
+	}
+	if(num<0){
+		*head='-';
+		head++;
+		num=-num;
+	}
+	while(num>0){
+		if(num%0x10<10){
+			*head=num%0x10+'0';
+		}else{
+			if(upper){
+				*head=num%0x10-10+'A';
+			}else{
+				*head=num%0x10-10+'a';
+			}
+		}
+		num/=0x10;
 		head++;
 	}
 	*head=0;
@@ -112,6 +145,15 @@ void sformat(char* dist,char* form,...){
 			case 'c':
 				*head=va_arg(ap,int);
 				head++;
+				break;
+			case 'x':
+				hexstr(head,va_arg(ap,int),0);
+				head+=strlen(head);
+				break;
+			case 'X':
+				hexstr(head,va_arg(ap,int),1);
+				head+=strlen(head);
+				break;
 			case '%':
 				*head='%';
 				head++;
