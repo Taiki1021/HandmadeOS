@@ -106,6 +106,18 @@ gdt:
 	db 0x40
 	db 0x00
 
+;GDTSelecter
+	dw gdt_end-gdt-1
+	dw gdt+0x7C00
+	db 0x00
+	db 0x92
+	db 0xC0
+	db 0x00
+
+;IDTSelecter
+;UserCodeSelecter
+;UserDataSelecter
+
 gdt_end:
 
 ;=======================================================
