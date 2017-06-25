@@ -4,4 +4,6 @@ int outb(unsigned short port,unsigned char data);
 int outw(unsigned short port,unsigned short data);
 void sti();
 void cli();
+void lidt();
+void isr_ignore();
 

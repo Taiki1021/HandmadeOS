@@ -6,6 +6,7 @@ global outb
 global outw
 global sti
 global cli
+global lidt
 
 CopyFar:
 ;void CopyFar(unsigned short DistSelecter,void* DistOffset,int DStep,unsigned short SrcSelecter,void* SrcOffset,int SStep,int n);
@@ -90,3 +91,11 @@ cli:
 ;void cli();
 	cli
 	ret
+
+lidt:
+;void lidt();
+	lidt [idtr]
+
+idtr:
+	dw 256*8-1
+	dd 0
