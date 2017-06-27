@@ -13,6 +13,8 @@ void ISR_IGNORE(struct trapframe* tf);
 
 int main(){
 	int A=0;
+	CopyFar(VideoSelecter,(void*)0,2,SysDataSelecter,"Hello World!!",1,13);
+	Halt();
 	clear();
 	GDTIDT_Init();
 	sti();

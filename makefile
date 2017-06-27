@@ -3,26 +3,37 @@ TARGET = test.img
 TRAPOBJS   = trap.o trapasm.o vectors.o vectors.asm
 MAINOBJS   = main.o segment.o video.o gdtidt.o
 
-KERNELOBJS = kernel.bin kernel $(MAINOBJS) $(TRAPOBJS)
+KERNELOBJS = kernel.o kernel_code.bin kernel_data.bin $(MAINOBJS) $(TRAPOBJS)
 BOOTOBJS   = boot.bin
 
 OBJS =$(BOOTOBJS) $(KERNELOBJS)
 
 #ディスクイメージ
-$(TARGET):boot.bin kernel.bin 				
-	dd if=/dev/zero of=$@ count=18
+#|1         |2                6|7              18|
+#|          |                  |                 |
+#|          |                  |                 |
+#| boot.bin |  kernel_data.bin | kernel.code.bin |
+#|          |                  |                 |
+#|          |                  |                 |
+$(TARGET):boot.bin kernel_code.bin kernel_data.bin
+	dd if=/dev/zero of=$@ count=32
 	dd if=boot.bin of=$@ conv=notrunc
-	dd if=kernel.bin of=$@ seek=1 conv=notrunc
+	dd if=kernel_data.bin of=$@ seek=1 conv=notrunc
+	dd if=kernel_code.bin of=$@ seek=6 conv=notrunc
 
 #ブートローダー
 boot.bin:boot.asm selecter.inc
 	nasm -f bin boot.asm -o boot.bin
 
 #カーネル
-kernel.bin: main.o segment.o video.o gdtidt.o trap.o trapasm.o vectors.o
-	ld -m elf_i386 -o kernel -Ttext 0x00 -e main $^
-	objcopy -R .note -R .comment -S -O binary kernel kernel.bin
+kernel_code.bin: kernel.o
+	objcopy -R .note -R .comment -R .eh_frame -R .rodata -R .bss -S -O binary $< $@
 
+kernel_data.bin: kernel.o
+	objcopy -R .note -R .comment -R .eh_frame -R .text           -S -O binary $< $@
+
+kernel.o: main.o segment.o video.o gdtidt.o trap.o trapasm.o vectors.o
+	ld -m elf_i386 -o $@ -Ttext 0x00 -e main $^
 
 #↓カーネル用オブジェクトファイル↓
 
@@ -57,4 +68,5 @@ vectors.asm:vectors.pl
 clean:
 	rm -f $(TARGET) $(OBJS)
 
-
+sector: kernel.o
+	objdump -h kernel.o

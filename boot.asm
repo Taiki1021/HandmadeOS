@@ -9,14 +9,43 @@ start:
 	mov ds,ax
 	mov ss,ax
 
-Kernel_Load:
-	mov si,17	
+Kernel_data_Load:
+	mov si,5
 
 	mov dh,0	;ヘッダ番号
 	mov ch,0	;シリンダ番号
 	mov cl,2	;セクタ番号
 	mov bx,0   	;ターゲットアドレス(オフセット)
-Kernel_Load_Retry:
+Kernel_data_Load_Retry:
+	mov ax,0x07E0 ;0x07E0:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
+	mov es,ax
+	mov ah,2	;読み込み
+	mov al,1      ;読み込むセクタ数
+	mov dl,0      ;Aドライブ
+
+	int 0x13
+	jc Kernel_data_Load_Retry  ;エラーが起きた場合はリトライ
+	dec si			;カウンタを下げて
+	jz Kernel_data_Load_End	;0でなければ
+	add bx,0x200		;ターゲットのアドレスを512バイト移動
+	inc cl			;読み込むセクタ位置を一つずらす
+	cmp cl,19		;もし最後のセクタまで行ったら
+	jz Kernel_data_Load_inccyl   ;シリンダを移動する
+	jmp Kernel_data_Load_Retry
+Kernel_data_Load_inccyl:
+	mov cl,1
+	inc ch
+	jmp Kernel_data_Load_Retry
+Kernel_data_Load_End:
+
+Kernel_code_Load:
+	mov si,18
+
+	mov dh,0	;ヘッダ番号
+	mov ch,0	;シリンダ番号
+	mov cl,7	;セクタ番号
+	mov bx,0   	;ターゲットアドレス(オフセット)
+Kernel_code_Load_Retry:
 	mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
 	mov es,ax
 	mov ah,2	;読み込み
@@ -24,19 +53,20 @@ Kernel_Load_Retry:
 	mov dl,0      ;Aドライブ
 
 	int 0x13
-	jc Kernel_Load_Retry  ;エラーが起きた場合はリトライ
+	jc Kernel_code_Load_Retry  ;エラーが起きた場合はリトライ
 	dec si			;カウンタを下げて
-	jz Kernel_Load_End	;0でなければ
+	jz Kernel_code_Load_End	;0でなければ
 	add bx,0x200		;ターゲットのアドレスを512バイト移動
 	inc cl			;読み込むセクタ位置を一つずらす
 	cmp cl,19		;もし最後のセクタまで行ったら
-	jz Kernel_Load_inccyl   ;シリンダを移動する
-	jmp Kernel_Load_Retry
-Kernel_Load_inccyl:
+	jz Kernel_code_Load_inccyl   ;シリンダを移動する
+	jmp Kernel_code_Load_Retry
+Kernel_code_Load_inccyl:
 	mov cl,1
 	inc ch
-	jmp Kernel_Load_Retry
-Kernel_Load_End:
+	jmp Kernel_code_Load_Retry
+Kernel_code_Load_End:
+
 
 	mov dx,0x3F2	;フロッピーディスクのモーターの電源を切る
 	xor al,al
@@ -56,16 +86,22 @@ Kernel_Load_End:
 	nop
 	nop
 
+	db 0x66
+	db 0x67
+	jmp DWORD BootSelecter:PM_start
+
+[bits 32]
+PM_start:
 	mov ax,SysDataSelecter
 	mov ds,ax
 	mov es,ax
 	mov fs,ax
 	mov gs,ax
 	mov ss,ax
+	mov esp,0x8200-1 ;カーネルスタックの初期位置はデータセグメントの一番最後
 
-	db 0x66
-	db 0x67
-	jmp DWORD SysCodeSelecter:0000	;読み込んだプログラムに飛ぶ
+	jmp SysCodeSelecter:0000
+
 
 ;========GDT==========================================
 
@@ -83,23 +119,23 @@ gdt:
 	db 0
 
 ;SysCodeSelecter
-	dw 0xFFFF
+	dw 0x3600
 	dw 0x0000
 	db 0x01
 	db 0x9A
-	db 0xCF
+	db 0xC0
 	db 0x00
 
 ;SysDataSelecter
-	dw 0xFFFF
-	dw 0x0000
-	db 0x01
+	dw 0x8200
+	dw 0x7E00
+	db 0x00
 	db 0x92
-	db 0xCF
+	db 0xC0
 	db 0x00
 
 ;VideoSelecter
-	dw 0xFFFF
+	dw 0x8000
 	dw 0x8000
 	db 0x0B
 	db 0x92
@@ -135,6 +171,14 @@ gdt:
 	dw 0x0000
 	db 0x00
 	db 0x92
+	db 0xC0
+	db 0x00
+
+;BootSelecter
+	dw 0x0200
+	dw 0x7C00
+	db 0x00
+	db 0x9A
 	db 0xC0
 	db 0x00
 gdt_end:

@@ -5,3 +5,4 @@
 #define IDTSelecter	 0x28
 #define UsrCodeSelecter	 0x30
 #define UsrDataSelecter	 0x38
+#define BootSelecter	 0x40

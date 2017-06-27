@@ -5,3 +5,4 @@ GDTSelecter  equ 0x20
 IDTSelecter equ 0x28
 UsrCodeSelecter equ 0x30
 UsrDataSelecter equ 0x38
+BootSelecter equ 0x40
