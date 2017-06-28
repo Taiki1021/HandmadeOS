@@ -1,5 +1,7 @@
 %include"selecter.inc"
 
+section .text
+
 global alltraps
 
 extern trap

@@ -5,6 +5,7 @@
 #include"trap.h"
 
 
+#define printf(FORMAT,...) sformat(buf,FORMAT,__VA_ARGS__); vputs(buf);
 
 void GDTDUMP(int A);
 void IDTDUMP(int A);
@@ -13,20 +14,22 @@ void ISR_IGNORE(struct trapframe* tf);
 
 int main(){
 	int A=0;
-	CopyFar(VideoSelecter,(void*)0,2,SysDataSelecter,"Hello World!!",1,13);
-	Halt();
+	char buf[64];
 	clear();
 	GDTIDT_Init();
+	printf("SS:%X\n",GetSS());
 	sti();
 	Halt();
 }
 
 void GDTIDT_Init(){
 	int A;
+
 	GDT_Load(5);
 	GDT_SetBaseAddress(0);
 	GDT_SetLimit(256*8);
 	GDT_Save(5);
+
 	IDT_Clear();
 	IDT_SetHandlerSegment(SysCodeSelecter);
 	IDT_SetFlags(IDT_GetFlags() | IDT_D | IDT_P);
@@ -35,17 +38,26 @@ void GDTIDT_Init(){
 		IDT_SetHandler((int)vectors[A]);
 		IDT_Save(A);
 	}
+
 	for(A=0;A<256;A++){
 		IntHandler[A]=ISR_IGNORE;
 	}
-	
 	lidt();
 }
 
 void ISR_IGNORE(struct trapframe* tf){
-	char Buf[64];
-	sformat(Buf,"Interrupt!! No.%d\n",tf->trapno);
-	vputs(Buf);
+	char buf[64];
+	printf("Interrupt!! No.%d\n",tf->trapno);
+	printf("CS:%X\n",tf->cs);
+	printf("EIP:%X\n",tf->eip);
+	printf("DS:%X\n",tf->ds);
+	printf("EDI:%X\n",tf->edi);
+	printf("ESI:%X\n",tf->esi);
+	printf("SS:%X\n",tf->ss);
+	printf("ESP:%X\n",tf->esp);
+
+	printf("SS:%X\n",GetSS());
+	Halt();
 	return ;
 }
 

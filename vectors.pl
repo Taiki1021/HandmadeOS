@@ -1,4 +1,5 @@
 print "extern alltraps\n";
+print "section .text\n";
 
 for(my $i = 0; $i < 256; $i++){
 	print "global vector$i\n";
@@ -8,6 +9,7 @@ for(my $i = 0; $i < 256; $i++){
 }
 
 
+print "section .data\n";
 print "global vectors\n";
 print "vectors:\n";
 for(my $i = 0;$i<256;$i++){

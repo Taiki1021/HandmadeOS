@@ -32,8 +32,8 @@ kernel_code.bin: kernel.o
 kernel_data.bin: kernel.o
 	objcopy -R .note -R .comment -R .eh_frame -R .text           -S -O binary $< $@
 
-kernel.o: main.o segment.o video.o gdtidt.o trap.o trapasm.o vectors.o
-	ld -m elf_i386 -o $@ -Ttext 0x00 -e main $^
+kernel.o: main.o segment.o video.o gdtidt.o trap.o trapasm.o vectors.o 
+	ld  -o $@ -T kernel.ld $^
 
 #↓カーネル用オブジェクトファイル↓
 
