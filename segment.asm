@@ -8,7 +8,6 @@ global outw
 global sti
 global cli
 global lidt
-global GetSS
 
 CopyFar:
 ;void CopyFar(unsigned short DistSelecter,void* DistOffset,int DStep,unsigned short SrcSelecter,void* SrcOffset,int SStep,int n);
@@ -97,12 +96,6 @@ cli:
 lidt:
 ;void lidt();
 	lidt [idtr]
-	ret
-
-GetSS:
-;int GetSS();
-	xor  eax,eax
-	mov ax,ss
 	ret
 
 section .data

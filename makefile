@@ -64,9 +64,15 @@ vectors.asm:vectors.pl
 
 #↑カーネル用オブジェクトファイル↑
 
-.PHONY: clean
+.PHONY: clean sector qemu debug
 clean:
 	rm -f $(TARGET) $(OBJS)
 
-sector: kernel.o
+sector:
 	objdump -h kernel.o
+
+qemu:
+	qemu-system-x86_64 -m 256 -fda test.img
+
+debug:
+	qemu-system-x86_64 -S -gdb tcp::1234 -m 256 -fda test.img

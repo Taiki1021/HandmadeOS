@@ -19,6 +19,7 @@ struct trapframe{
 
 	unsigned int trapno;
 
+	unsigned int err;
 	unsigned int eip;
 	unsigned short cs;
 	unsigned short padding5;

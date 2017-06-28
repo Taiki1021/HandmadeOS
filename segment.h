@@ -6,5 +6,4 @@ void sti();
 void cli();
 void lidt();
 void isr_ignore();
-int GetSS();
 
