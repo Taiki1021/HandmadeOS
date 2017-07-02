@@ -25,6 +25,9 @@ alltraps:
 	push esp
 	call trap
 	add esp,4
+	
+	mov al,0x20
+	out 0x20,al
 
 	popad
 	pop gs

@@ -76,3 +76,7 @@ qemu:
 
 debug:
 	qemu-system-x86_64 -S -gdb tcp::1234 -m 256 -fda test.img
+
+kernel_disasm:
+	ndisasm kernel_code.bin |less
+
