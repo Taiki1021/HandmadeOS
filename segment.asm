@@ -65,44 +65,44 @@ Halt:
 
 outb:
 ;int outb(unsigned short port,unsigned char data);
-	push ax
-	push dx
+	push eax
+	push edx
 	mov dx,[ss:(esp+12+0)]
 	mov al,[ss:(esp+12+4)]
 	out dx,al
-	pop dx
-	pop ax
+	pop edx
+	pop eax
 	ret
 
 outw:
 ;int outw(unsigned short port,unsigned short data);
-	push ax
-	push dx
+	push eax
+	push edx
 	mov dx,[ss:(esp+12+0)]
 	mov ax,[ss:(esp+12+4)]
 	out dx,ax 
-	pop dx
-	pop ax
+	pop edx
+	pop eax
 	ret
 
 
 inb:
 ;unsigned char inb(unsigned short port);
-	push dx
+	push edx
 	mov dx,[ss:(esp+8+0)]
 	xor eax,eax
 	in al,dx
-	pop dx
+	pop edx
 	ret
 
 
 inw:
 ;unsigned short inw(unsigned short port);
-	push dx
+	push edx
 	mov dx,[ss:(esp+8+0)]
 	xor eax,eax
 	in ax,dx
-	pop dx
+	pop edx
 	ret
 
 sti:

@@ -18,6 +18,7 @@ int main(){
 	clear();
 	GDTIDT_Init();
 	sti();
+	GDTDUMP(1);
 	Halt();
 }
 
@@ -73,7 +74,7 @@ void ISR_IGNORE(struct trapframe* tf){
 	*/
 	//Halt();
 	if(tf->trapno==0x21){
-		inb(0x0060);
+		printf("Data:%d\n",inb(0x0060));
 	}
 	return ;
 }

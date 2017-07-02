@@ -1,3 +1,4 @@
+void setcursor(unsigned short pos);
 void vputc(char c);
 void vputs(char* str);
 void clear();
