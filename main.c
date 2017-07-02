@@ -72,6 +72,9 @@ void ISR_IGNORE(struct trapframe* tf){
 	printf("ss:%X\n",tf->ss);
 	*/
 	//Halt();
+	if(tf->trapno==0x21){
+		inb(0x0060);
+	}
 	return ;
 }
 

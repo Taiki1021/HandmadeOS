@@ -5,6 +5,8 @@ global Halt
 global CopyFar
 global outb
 global outw
+global inb
+global inw
 global sti
 global cli
 global lidt
@@ -81,6 +83,26 @@ outw:
 	out dx,ax 
 	pop dx
 	pop ax
+	ret
+
+
+inb:
+;unsigned char inb(unsigned short port);
+	push dx
+	mov dx,[ss:(esp+8+0)]
+	xor eax,eax
+	in al,dx
+	pop dx
+	ret
+
+
+inw:
+;unsigned short inw(unsigned short port);
+	push dx
+	mov dx,[ss:(esp+8+0)]
+	xor eax,eax
+	in ax,dx
+	pop dx
 	ret
 
 sti:
