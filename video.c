@@ -145,13 +145,10 @@ void hexstr(char* out,int num,char upper){
 	reverse(out,sizeof(char),strlen(out));
 }
 
-void sformat(char* dist,char* form,...){
+void vsformat(char* dist,char* form,va_list ap){
 	int A;
 	char* head=dist;
 	char* sub;
-	va_list ap;
-
-	va_start(ap,form);
 
 	for(A=0;form[A];A++){
 		if(form[A]=='%'){
@@ -189,5 +186,25 @@ void sformat(char* dist,char* form,...){
 		}
 	}
 	*head=0;
+	return ;
+}
+
+
+void sformat(char* dist,char* form,...){
+	va_list ap;
+
+	va_start(ap,form);
+	vsformat(dist,form,ap);
+	va_end(ap);
+	return ;
+}
+
+void Printf(char* form,...){
+	char Buf[64];
+	va_list ap;
+
+	va_start(ap,form);
+	vsformat(Buf,form,ap);
+	vputs(Buf);
 	va_end(ap);
 }

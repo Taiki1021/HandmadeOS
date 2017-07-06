@@ -10,3 +10,4 @@ void reverse(void* seq,int blocksize,int count);
 int strlen(char* str);
 void numstr(char* out,int num);
 void sformat(char* dist,char* form,...);
+void Printf(char* form,...);

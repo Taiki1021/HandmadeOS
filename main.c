@@ -3,9 +3,8 @@
 #include"video.h"
 #include"gdtidt.h"
 #include"trap.h"
+#include"memory.h"
 
-
-#define printf(FORMAT,...) sformat(buf,FORMAT,__VA_ARGS__); vputs(buf);
 
 void GDTDUMP(int A);
 void IDTDUMP(int A);
@@ -14,11 +13,12 @@ void ISR_IGNORE(struct trapframe* tf);
 
 int main(){
 	int A=0;
-	char buf[64];
 	clear();
+	Printf("%X\n",mem_reset);
+//	mem_reset();
 	GDTIDT_Init();
 	sti();
-	GDTDUMP(1);
+//	mem_dump(0,1);
 	Halt();
 }
 
@@ -47,8 +47,7 @@ void GDTIDT_Init(){
 }
 
 void ISR_IGNORE(struct trapframe* tf){
-	char buf[64];
-	printf("Interrupt!! 0x%X %d\n",tf->trapno,tf->trapno);
+	//printf("Interrupt!! 0x%X %d\n",tf->trapno,tf->trapno);
 	/*
 	printf("EDI:%X\n",tf->edi);
 	printf("ESI:%X\n",tf->esi);
@@ -74,7 +73,7 @@ void ISR_IGNORE(struct trapframe* tf){
 	*/
 	//Halt();
 	if(tf->trapno==0x21){
-		printf("Data:%d\n",inb(0x0060));
+		Printf("Data:%d\n",inb(0x0060));
 	}
 	return ;
 }
@@ -82,19 +81,19 @@ void ISR_IGNORE(struct trapframe* tf){
 void GDTDUMP(int A){
 	char Buf[64];
 	GDT_Load(A);
-	sformat(Buf,"GDTNo.%d\n",A);vputs(Buf);
-	sformat(Buf,"BaseAddress:\t0x%X\n",GDT_GetBaseAddress());vputs(Buf);
-	sformat(Buf,"Limit:\t%X\n",GDT_GetLimit());vputs(Buf);
-	sformat(Buf,"Type:\t%d%d%d%d\n",!!(GDT_GetFlags() & GDT_TYPE3),!!(GDT_GetFlags() & GDT_TYPE2),!!(GDT_GetFlags() & GDT_TYPE1),!!(GDT_GetFlags() & GDT_TYPE0));vputs(Buf);
-	sformat(Buf,"DPL:\t%d%d\n",!!(GDT_GetFlags() & GDT_DPL1),!!(GDT_GetFlags() & GDT_DPL0));vputs(Buf);
-	sformat(Buf,"AVL:\t%d\n",!!(GDT_GetFlags() & GDT_AVL));vputs(Buf);
-	sformat(Buf,"PSDG:\t%d%d%d%d\n",!!(GDT_GetFlags() & GDT_P),!!(GDT_GetFlags() & GDT_S),!!(GDT_GetFlags() & GDT_D),!!(GDT_GetFlags() & GDT_G));vputs(Buf);
+	Printf("GDTNo.%d\n",A);
+	Printf("BaseAddress:\t0x%X\n",GDT_GetBaseAddress());
+	Printf("Limit:\t%X\n",GDT_GetLimit());vputs(Buf);
+	Printf("Type:\t%d%d%d%d\n",!!(GDT_GetFlags() & GDT_TYPE3),!!(GDT_GetFlags() & GDT_TYPE2),!!(GDT_GetFlags() & GDT_TYPE1),!!(GDT_GetFlags() & GDT_TYPE0));
+	Printf("DPL:\t%d%d\n",!!(GDT_GetFlags() & GDT_DPL1),!!(GDT_GetFlags() & GDT_DPL0));
+	Printf("AVL:\t%d\n",!!(GDT_GetFlags() & GDT_AVL));
+	Printf("PSDG:\t%d%d%d%d\n",!!(GDT_GetFlags() & GDT_P),!!(GDT_GetFlags() & GDT_S),!!(GDT_GetFlags() & GDT_D),!!(GDT_GetFlags() & GDT_G));
 }
 
 void IDTDUMP(int A){
 	char Buf[64];
 	IDT_Load(A);
-	sformat(Buf,"IDTNo.%d\n",A);vputs(Buf);
-	sformat(Buf,"Handler:\t%X\n",IDT_GetHandler());vputs(Buf);
-	sformat(Buf,"HandlerSegment:\t%X\n",IDT_GetHandlerSegment());vputs(Buf);
+	Printf("IDTNo.%d\n",A);
+	Printf("Handler:\t%X\n",IDT_GetHandler());
+	Printf("HandlerSegment:\t%X\n",IDT_GetHandlerSegment());
 }
