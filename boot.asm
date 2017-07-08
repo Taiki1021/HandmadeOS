@@ -9,64 +9,23 @@ start:
 	mov ds,ax
 	mov ss,ax
 
-Kernel_data_Load:
-	mov si,5
-
+	mov ax,0x07E0 
+	mov es,ax	;読み込み先のセグメント
+	mov si,5	;読み込むセクタ数
 	mov dh,0	;ヘッダ番号
 	mov ch,0	;シリンダ番号
 	mov cl,2	;セクタ番号
 	mov bx,0   	;ターゲットアドレス(オフセット)
-Kernel_data_Load_Retry:
-	mov ax,0x07E0 ;0x07E0:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
-	mov es,ax
-	mov ah,2	;読み込み
-	mov al,1      ;読み込むセクタ数
-	mov dl,0      ;Aドライブ
+	call Load
 
-	int 0x13
-	jc Kernel_data_Load_Retry  ;エラーが起きた場合はリトライ
-	dec si			;カウンタを下げて
-	jz Kernel_data_Load_End	;0でなければ
-	add bx,0x200		;ターゲットのアドレスを512バイト移動
-	inc cl			;読み込むセクタ位置を一つずらす
-	cmp cl,19		;もし最後のセクタまで行ったら
-	jz Kernel_data_Load_inccyl   ;シリンダを移動する
-	jmp Kernel_data_Load_Retry
-Kernel_data_Load_inccyl:
-	mov cl,1
-	inc ch
-	jmp Kernel_data_Load_Retry
-Kernel_data_Load_End:
-
-Kernel_code_Load:
-	mov si,18
-
+	mov ax,0x1000 
+	mov es,ax	;読み込み先のセグメント
+	mov si,24	;読み込むセクタ数
 	mov dh,0	;ヘッダ番号
 	mov ch,0	;シリンダ番号
 	mov cl,7	;セクタ番号
 	mov bx,0   	;ターゲットアドレス(オフセット)
-Kernel_code_Load_Retry:
-	mov ax,0x1000 ;0x1000:0000にAドライブの0番目のシリンダの1番目のセクタをHead=0で読み込む
-	mov es,ax
-	mov ah,2	;読み込み
-	mov al,1      ;読み込むセクタ数
-	mov dl,0      ;Aドライブ
-
-	int 0x13
-	jc Kernel_code_Load_Retry  ;エラーが起きた場合はリトライ
-	dec si			;カウンタを下げて
-	jz Kernel_code_Load_End	;0でなければ
-	add bx,0x200		;ターゲットのアドレスを512バイト移動
-	inc cl			;読み込むセクタ位置を一つずらす
-	cmp cl,19		;もし最後のセクタまで行ったら
-	jz Kernel_code_Load_inccyl   ;シリンダを移動する
-	jmp Kernel_code_Load_Retry
-Kernel_code_Load_inccyl:
-	mov cl,1
-	inc ch
-	jmp Kernel_code_Load_Retry
-Kernel_code_Load_End:
-
+	call Load
 
 	mov dx,0x3F2	;フロッピーディスクのモーターの電源を切る
 	xor al,al
@@ -122,6 +81,37 @@ Kernel_code_Load_End:
 	db 0x66
 	db 0x67
 	jmp DWORD BootSelecter:PM_start
+
+
+Load:
+	pushad
+	mov ah,2	;読み込み
+	mov al,1      ;読み込むセクタ数
+	mov dl,0      ;Aドライブ
+Load_Retry:
+	pushad
+	int 0x13	;読み込み
+	popad
+	jc Load_Retry  ;エラーが起きた場合はリトライ
+	dec si		;カウンタを下げて
+	jz Load_End	;0なら終了
+	add bx,0x200	;ターゲットのアドレスを512バイト移動
+	inc cl		;読み込むセクタ位置を一つずらす
+	cmp cl,18	;もし最後のセクタまで行ったら
+	jbe Load_Retry   ;シリンダを移動する
+Load_inchead:
+	mov cl,1
+	inc dh
+	cmp dh,2
+	jb Load_Retry
+Load_inccyl:
+	mov dh,0
+	inc ch
+	jmp Load_Retry
+Load_End:
+	popad
+	ret
+
 
 [bits 32]
 PM_start:

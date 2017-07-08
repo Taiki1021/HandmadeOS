@@ -16,7 +16,7 @@ int main(){
 	clear();
 	GDTDUMP(1);
 	Printf("%X\n",mem_reset);
-//	mem_reset();
+	mem_reset();
 	GDTIDT_Init();
 	sti();
 //	mem_dump(0,1);
