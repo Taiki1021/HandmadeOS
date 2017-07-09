@@ -9,6 +9,7 @@ start:
 	mov ds,ax
 	mov ss,ax
 
+
 	mov ax,0x07E0 
 	mov es,ax	;読み込み先のセグメント
 	mov si,5	;読み込むセクタ数
@@ -92,7 +93,14 @@ Load_Retry:
 	pushad
 	int 0x13	;読み込み
 	popad
-	jc Load_Retry  ;エラーが起きた場合はリトライ
+	jnc Load_Next  ;エラーが起きた場合はリトライ
+	pushad
+	mov ah,0x00
+	mov dl,0x00
+	int 0x13	;ドライブのリセット
+	popad
+	jmp Load_Retry
+Load_Next:
 	dec si		;カウンタを下げて
 	jz Load_End	;0なら終了
 	add bx,0x200	;ターゲットのアドレスを512バイト移動
@@ -113,6 +121,7 @@ Load_End:
 	ret
 
 
+
 [bits 32]
 PM_start:
 	mov ax,SysDataSelecter
@@ -123,11 +132,11 @@ PM_start:
 	mov ss,ax
 	mov esp,0x3600-5 ;カーネルスタックの初期位置はデータセグメントの一番最後
 
-	mov ax,VideoSelecter
-	mov es,ax
-	mov esi,0
-	mov edi,0
-	mov cx,0x7FF
+;	mov ax,VideoSelecter
+;	mov es,ax
+;	mov esi,0
+;	mov edi,0
+;	mov cx,0x7FF
 ;PrintLoop:
 ;	mov ah,[ds:esi]
 ;	mov [es:edi],ah
