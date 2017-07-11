@@ -7,8 +7,9 @@
 start:
 	mov ax,cs ;ds,ssをcsに合わせる
 	mov ds,ax
+	mov ax,0x9000
 	mov ss,ax
-
+	mov sp,0xFFFF
 
 	mov ax,0x07E0 
 	mov es,ax	;読み込み先のセグメント
