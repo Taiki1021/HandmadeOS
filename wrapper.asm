@@ -114,14 +114,3 @@ cli:
 ;void cli();
 	cli
 	ret
-
-lidt:
-;void lidt();
-	lidt [idtr]
-	ret
-
-section .data
-idtr:
-	dw 256*8-1
-	dd 0
-

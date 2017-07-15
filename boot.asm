@@ -1,17 +1,18 @@
 %include"selecter.inc"
 [org 0]
-[bits 16]
-
 	jmp 0x07C0:start
 
 	times 0xF-($-$$) db 0
 start:
+;セグメントレジスタ初期化
 	mov ax,cs ;ds,ssをcsに合わせる
 	mov ds,ax
 	mov ax,0x9000
 	mov ss,ax
 	mov sp,0xFFFF
 
+
+;カーネルロード
 	mov ax,0x07E0 
 	mov es,ax	;読み込み先のセグメント
 	mov si,5	;読み込むセクタ数
@@ -34,6 +35,8 @@ start:
 	xor al,al
 	out dx,al
 
+
+;PICの設定
 	cli
 
 	mov al,0x11
@@ -70,9 +73,11 @@ start:
 	xor al,0x00
 	out 0xA1,al
 
-
+;GDT IDTの登録
 	lgdt [gdtr]    ;GDTを登録
+	lidt [idtr]
 
+;保護モードに入る
 	mov eax,cr0		
 	or eax,0x00000001	;保護モードに入る
 	mov cr0,eax
@@ -85,7 +90,37 @@ start:
 	db 0x67
 	jmp DWORD BootSelecter:PM_start
 
+[bits 32]
+PM_start:
+;セグメントレジスタ初期化
+	mov ax,SysDataSelecter
+	mov ds,ax
+	mov es,ax
+	mov fs,ax
+	mov gs,ax
+	mov ss,ax
+	mov esp,0x3600-5 ;カーネルスタックの初期位置はデータセグメントの一番最後
 
+;	mov ax,VideoSelecter
+;	mov es,ax
+;	mov esi,0
+;	mov edi,0
+;	mov cx,0x7FF
+;PrintLoop:
+;	mov ah,[ds:esi]
+;	mov [es:edi],ah
+;	inc esi
+;	add edi,2
+;	dec cx
+;	jnz PrintLoop
+
+;	jmp $
+	
+;カーネルに飛ぶ
+	jmp SysCodeSelecter:0000
+
+
+[bits 16]
 
 Load:
 	pushad
@@ -125,33 +160,11 @@ Load_End:
 
 
 
-[bits 32]
-PM_start:
-	mov ax,SysDataSelecter
-	mov ds,ax
-	mov es,ax
-	mov fs,ax
-	mov gs,ax
-	mov ss,ax
-	mov esp,0x3600-5 ;カーネルスタックの初期位置はデータセグメントの一番最後
 
-;	mov ax,VideoSelecter
-;	mov es,ax
-;	mov esi,0
-;	mov edi,0
-;	mov cx,0x7FF
-;PrintLoop:
-;	mov ah,[ds:esi]
-;	mov [es:edi],ah
-;	inc esi
-;	add edi,2
-;	dec cx
-;	jnz PrintLoop
-
-;	jmp $
-	
-
-	jmp SysCodeSelecter:0000
+;========IDTR========================================
+idtr:
+	dw 256*8-1
+	dd 0
 
 
 ;========GDT==========================================
@@ -202,7 +215,7 @@ gdt:
 	db 0x00
 
 ;IDTSelecter
-	dw 0x0000
+	dw 0x0800
 	dw 0x0000
 	db 0x00
 	db 0x92

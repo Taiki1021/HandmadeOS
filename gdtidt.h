@@ -17,6 +17,11 @@ void IDT_SetHandlerSegment(unsigned short HandlerSegment);
 unsigned char IDT_GetFlags();
 void IDT_SetFlags(unsigned char Flags);
 
+void IDT_Init();
+void GDTDUMP(int A);
+void IDTDUMP(int A);
+
+
 
 
 #define GDT_TYPE0	1

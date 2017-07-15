@@ -1,7 +1,7 @@
 TARGET = test.img
 
 TRAPOBJS   = trap.o trapasm.o vectors.o vectors.asm
-MAINOBJS   = main.o segment.o video.o gdtidt.o memory.o
+MAINOBJS   = main.o wrapper.o video.o gdtidt.o memory.o
 
 KERNELOBJS = kernel.o kernel_code.bin kernel_data.bin $(MAINOBJS) $(TRAPOBJS)
 BOOTOBJS   = boot.bin
@@ -32,21 +32,21 @@ kernel_code.bin: kernel.o
 kernel_data.bin: kernel.o
 	objcopy -R .note -R .comment -R .eh_frame -R .text           -S -O binary $< $@
 
-kernel.o: main.o segment.o video.o gdtidt.o trap.o trapasm.o vectors.o memory.o
+kernel.o: main.o wrapper.o video.o gdtidt.o trap.o trapasm.o vectors.o memory.o
 	ld  -o $@ -T kernel.ld $^
 
 #↓カーネル用オブジェクトファイル↓
 
-segment.o:segment.asm segment.h
+wrapper.o:wrapper.asm wrapper.h
 	nasm -f elf32 $<
 
-main.o:main.c segment.h video.h trap.h memory.h
+main.o:main.c wrapper.h video.h gdtidt.h memory.h
 	gcc  -m32 $< -c
 
-video.o:video.c video.h segment.h
+video.o:video.c video.h wrapper.h selecter.h
 	gcc -m32 $< -c
 
-gdtidt.o:gdtidt.c gdtidt.h segment.h selecter.h
+gdtidt.o:gdtidt.c gdtidt.h wrapper.h selecter.h video.h trap.h
 	gcc -m32 $< -c
 
 trap.o:trap.c trap.h
@@ -61,7 +61,7 @@ vectors.o:vectors.asm trap.h
 vectors.asm:vectors.pl
 	perl $< > $@
 
-memory.o: memory.c memory.h
+memory.o: memory.c memory.h video.h
 	gcc -m32 $< -c
 
 

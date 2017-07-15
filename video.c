@@ -1,4 +1,4 @@
-#include"segment.h"
+#include"wrapper.h"
 #include"selecter.h"
 #include"video.h"
 #include<stdarg.h>
