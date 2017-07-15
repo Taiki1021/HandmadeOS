@@ -77,6 +77,9 @@ sector:
 qemu:
 	qemu-system-x86_64 -m 256 -fda test.img
 
+vbox:
+	sudo virtualbox /root/'VirtualBox VMs'/HandmadeOS/HandmadeOS.vbox
+
 debug:
 	qemu-system-x86_64 -S -gdb tcp::1234 -m 256 -fda test.img
 

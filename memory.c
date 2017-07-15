@@ -16,6 +16,8 @@ void mem_reset(){
 		FreeMem[A].addr=0;
 		FreeMem[A].size=0;
 	}
+	FreeMem[0].addr=(void*)0x100000;
+	FreeMem[0].size=256*1024*1024-0x100000;
 	return ;
 }
 
@@ -84,14 +86,22 @@ int mem_num(){
 void mem_free(void* address,int size){
 	int A,B;
 
+	if((int)address<(int)FreeMem[0].addr){
+		if((int)address+size==(int)FreeMem[0].addr){
+			FreeMem[0].addr=address;
+		}else{
+			for(B=SEGMENTTABLESIZE-1;B>=1;B--){
+				FreeMem[B].addr=FreeMem[B-1].addr;
+				FreeMem[B].size=FreeMem[B-1].size;
+			}
+			FreeMem[0].addr=address;
+			FreeMem[0].size=size;
+		}
+	}
+
 	for(A=0;A<SEGMENTTABLESIZE-1;A++){
 		if( ((int)FreeMem[A].addr < (int)address) && ((int)address <= (int)FreeMem[A+1].addr) ){
 			if(FreeMem[A].addr+FreeMem[A].size == address){
-				FreeMem[A].size += size;
-				return ;
-			}
-			if((int)address+size == (int)FreeMem[A+1].addr){
-				FreeMem[A].addr = address;
 				FreeMem[A].size += size;
 				if(FreeMem[A].addr+FreeMem[A].size == FreeMem[A+1].addr){
 					FreeMem[A].size += FreeMem[A+1].size;
@@ -103,13 +113,18 @@ void mem_free(void* address,int size){
 					FreeMem[B].size=0;
 				}
 				return ;
+			}else if((int)address+size == (int)FreeMem[A+1].addr){
+				FreeMem[A].addr = address;
+				FreeMem[A].size += size;
+				
+				return ;
 			}
-			for(B=SEGMENTTABLESIZE-1;B>A;B--){
+			for(B=SEGMENTTABLESIZE-1;B>=A+2;B--){
 				FreeMem[B].addr=FreeMem[B-1].addr;
 				FreeMem[B].size=FreeMem[B-1].size;
 			}
-			FreeMem[A].addr=address;
-			FreeMem[A].size=size;
+			FreeMem[A+1].addr=address;
+			FreeMem[A+1].size=size;
 			return ;
 		}
 	}

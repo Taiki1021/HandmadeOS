@@ -19,7 +19,11 @@ int main(){
 	mem_reset();
 	GDTIDT_Init();
 	sti();
-//	mem_dump(0,1);
+	A=(int)mem_alloc(0x10);
+	mem_free(A+3,5);
+	mem_free(A+9,5);
+	mem_alloc(7);
+	mem_dump(0,10);
 	Halt();
 }
 

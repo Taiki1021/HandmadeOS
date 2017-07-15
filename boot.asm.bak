@@ -4,7 +4,6 @@
 
 	jmp 0x07C0:start
 
-	times 0xF-($-$$) db 0
 start:
 	mov ax,cs ;ds,ssをcsに合わせる
 	mov ds,ax
@@ -29,6 +28,7 @@ start:
 	mov cl,7	;セクタ番号
 	mov bx,0   	;ターゲットアドレス(オフセット)
 	call Load
+
 
 	mov dx,0x3F2	;フロッピーディスクのモーターの電源を切る
 	xor al,al
