@@ -73,6 +73,17 @@ start:
 	xor al,0x00
 	out 0xA1,al
 
+;A20ゲートオン
+	call waitkbdout
+	mov al,0xd1
+	out 0x64,al
+	call waitkbdout
+	mov al,0xdf
+	out 0x60,al
+	call waitkbdout
+
+	
+
 ;GDT IDTの登録
 	lgdt [gdtr]    ;GDTを登録
 	lidt [idtr]
@@ -121,6 +132,12 @@ PM_start:
 
 
 [bits 16]
+
+waitkbdout:
+	in al,0x64
+	test al,2
+	jnz waitkbdout
+	ret
 
 Load:
 	pushad

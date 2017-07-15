@@ -3,9 +3,10 @@
 #include"gdtidt.h"
 #include"memory.h"
 
+#include"selecter.h"
+
 
 int main(){
-	int A=0;
 //システム初期化
 	clear();
 	mem_reset();
