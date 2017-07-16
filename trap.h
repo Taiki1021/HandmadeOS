@@ -1,3 +1,5 @@
+#ifndef TRAP_DEFINED
+#define TRAP_DEFINED
 struct trapframe{
 	unsigned int edi;
 	unsigned int esi;
@@ -36,3 +38,4 @@ extern void* vectors[256];
 void alltraps();
 
 void trap(struct trapframe* ft);
+#endif

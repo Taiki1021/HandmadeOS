@@ -3,7 +3,7 @@
 #include"video.h"
 #include<stdarg.h>
 
-unsigned short Counter;
+short Counter;
 
 
 void setcursor(unsigned short pos){
@@ -15,13 +15,38 @@ void setcursor(unsigned short pos){
 
 void vputc(char c){
 	int A;
+	char B,C;
 	switch(c){
 	case '\t':
 		Counter=(Counter/8)*8+8;
 		break;
 	case '\n':
+		B=0;
 		if(Counter/80 == 24)schroll();
+		CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&B,1,1);
+		Counter++;
 		Counter+=80-Counter%80;
+		break;
+	case '\b':
+		if(!(Counter%80) && Counter>0){
+			C=' ';
+			Counter--;
+			CopyFar(SysDataSelecter,&B,1,VideoSelecter,(char*)(Counter*2),1,1);
+			CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&C,1,1);
+			if(B==' '){
+				while(Counter>0 && B!=0){
+					Counter--;
+					CopyFar(SysDataSelecter,&B,1,VideoSelecter,(char*)(Counter*2),1,1);
+					CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&C,1,1);
+				}
+			}
+			if(Counter<0)Counter=0;
+		}else{
+			C=' ';
+			Counter--;
+			if(Counter<0)Counter=0;
+			CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&C,1,1);
+		}
 		break;
 	default:
 		if(Counter == 80*25-1)schroll();

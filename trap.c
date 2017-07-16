@@ -1,4 +1,5 @@
 #include"trap.h"
+#include"video.h"
 
 void (*IntHandler[256])(struct trapframe* tf);
 
