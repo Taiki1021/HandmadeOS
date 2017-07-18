@@ -4,11 +4,12 @@ ENTRY(main)
 
 SECTIONS
 {
+	. = 0;
 	.text : {
 		*(.text)
 	}
 	"file offset of data" = .;
-	. = 0;
+	. = 0x7E00;
 	.data : AT("file offset of data")
 	{
 		*(.rodata)
