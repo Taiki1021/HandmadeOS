@@ -29,6 +29,13 @@
 
 #define KBDBUFFERSIZE 1024
 
+#define VRAM ((vramdata*)(0xB8000))
+
+typedef struct{ 
+	char c;
+	unsigned char color;
+} vramdata;
+
 struct trapframe{
 	unsigned int edi;
 	unsigned int esi;

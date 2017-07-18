@@ -19,36 +19,34 @@ void vputc(char c){
 		Counter=(Counter/8)*8+8;
 		break;
 	case '\n':
-		B=0;
+		//B=0;
 		if(Counter/80 == 24)schroll();
-		CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&B,1,1);
+		VRAM[Counter].c=0;
 		Counter++;
 		Counter+=80-Counter%80;
 		break;
 	case '\b':
 		if(!(Counter%80) && Counter>0){
-			C=' ';
 			Counter--;
-			CopyFar(SysDataSelecter,&B,1,VideoSelecter,(char*)(Counter*2),1,1);
-			CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&C,1,1);
+			B=VRAM[Counter].c;
+			VRAM[Counter].c=' ';
 			if(B==' '){
 				while(Counter>0 && B!=0){
 					Counter--;
-					CopyFar(SysDataSelecter,&B,1,VideoSelecter,(char*)(Counter*2),1,1);
-					CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&C,1,1);
+					B=VRAM[Counter].c;
+					VRAM[Counter].c=' ';
 				}
 			}
 			if(Counter<0)Counter=0;
 		}else{
-			C=' ';
 			Counter--;
 			if(Counter<0)Counter=0;
-			CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&C,1,1);
+			VRAM[Counter].c=' ';
 		}
 		break;
 	default:
 		if(Counter == 80*25-1)schroll();
-		CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter,&c,1,1);
+		VRAM[Counter].c=c;
 		Counter++;
 	}
 	setcursor(Counter);
@@ -63,7 +61,7 @@ void vputs(char* str){
 
 void clear(){
 	for(Counter=0;Counter<80*25;Counter++){
-		CopyFar(VideoSelecter,(char*)(Counter*2),1,SysDataSelecter," ",1,1);
+		VRAM[Counter].c=' ';
 	}
 	Counter=0;
 	setcursor(Counter);
@@ -72,10 +70,10 @@ void clear(){
 void schroll(){
 	int A;
 	for(A=0;A<24;A++){
-		CopyFar(VideoSelecter,(char*)(A*80*2),1,VideoSelecter,(char*)((A+1)*80*2),1,80);
+		VRAM[A*80]=VRAM[(A+1)*80];
 	}
 	for(A=0;A<80;A++){
-		CopyFar(VideoSelecter,(char*)(24*80*2+A*2),1,SysDataSelecter," ",1,1);
+		VRAM[24*80+A].c=' ';
 	}
 	Counter-=80;
 }

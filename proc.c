@@ -28,7 +28,7 @@ int newproc(){
 			process[A].p_data=mem_alloc(process[A].p_datasize);
 			blockcpy(&process[A].Context,&process[CurrentProcID].Context,sizeof(struct trapframe));
 			process[A].p_data=malloc(process[A].p_datasize);
-			CopyFar(MallocSelecter,process[A].p_data-(void*)0x100000,1,MallocSelecter,process[CurrentProcID].p_data-(void*)0x100000,process[A].p_datasize);
+			blockcpy(process[A].p_data,process[CurrentProcID].p_data,process[A].p_datasize);
 			return A;
 		}
 	}
