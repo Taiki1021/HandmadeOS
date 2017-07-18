@@ -1,6 +1,4 @@
-#include"wrapper.h"
-#include"selecter.h"
-#include"video.h"
+#include"defs.h"
 #include<stdarg.h>
 
 short Counter;

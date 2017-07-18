@@ -1,5 +1,4 @@
-#include"memory.h"
-#include"video.h"
+#include"defs.h"
 
 #define SEGMENTTABLESIZE 10
 

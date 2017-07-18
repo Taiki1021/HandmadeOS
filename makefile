@@ -37,34 +37,34 @@ kernel.o: main.o wrapper.o video.o gdtidt.o trap.o trapasm.o vectors.o memory.o 
 
 #↓カーネル用オブジェクトファイル↓
 
-wrapper.o:wrapper.asm wrapper.h
+wrapper.o:wrapper.asm 
 	nasm -f elf32 $<
 
-main.o:main.c wrapper.h video.h gdtidt.h kbd.h
+main.o:main.c defs.h
 	gcc  -m32 $< -c
 
-video.o:video.c video.h wrapper.h selecter.h
+video.o:video.c defs.h
 	gcc -m32 $< -c
 
-gdtidt.o:gdtidt.c gdtidt.h wrapper.h selecter.h video.h trap.h
+gdtidt.o:gdtidt.c defs.h
 	gcc -m32 $< -c
 
-trap.o:trap.c trap.h
+trap.o:trap.c defs.h
 	gcc -m32 $< -c
 
-trapasm.o:trapasm.asm trap.h
+trapasm.o:trapasm.asm 
 	nasm -f elf32 $<
 
-vectors.o:vectors.asm trap.h
+vectors.o:vectors.asm 
 	nasm -f elf32 $<
 
 vectors.asm:vectors.pl
 	perl $< > $@
 
-memory.o: memory.c memory.h video.h
+memory.o: memory.c defs.h
 	gcc -m32 $< -c
 
-kbd.o:kbd.c trap.h kbd.h video.h wrapper.h
+kbd.o:kbd.c defs.h
 	gcc -m32 $< -c
 
 

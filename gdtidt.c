@@ -1,8 +1,4 @@
-#include"wrapper.h"
-#include"gdtidt.h"
-#include"selecter.h"
-#include"video.h"
-#include"trap.h"
+#include"defs.h"
 
 struct GDT{
 	unsigned short Limit1;

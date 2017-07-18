@@ -1,9 +1,4 @@
-#include"wrapper.h"
-#include"video.h"
-#include"gdtidt.h"
-#include"memory.h"
-#include"trap.h"
-#include"kbd.h"
+#include"defs.h"
 
 
 int main(){

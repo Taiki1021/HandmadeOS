@@ -1,6 +1,4 @@
-#include"kbd.h"
-#include"video.h"
-#include"wrapper.h"
+#include"defs.h"
 
 unsigned char KbdEvBuffer[KBDBUFFERSIZE];
 char InputBuffer[KBDBUFFERSIZE];

@@ -262,6 +262,15 @@ gdt:
 	db 0x9A
 	db 0x40
 	db 0x00
+
+;MallocSelecter
+	dw 0xFFFF
+	dw 0x0000
+	db 0x10
+	db 0x92
+	db 0x4F
+	db 0x00
+
 gdt_end:
 
 ;=======================================================
