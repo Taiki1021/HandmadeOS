@@ -31,6 +31,38 @@
 
 #define VRAM ((vramdata*)(0xB8000))
 
+#define IDT ((struct idtdata*)(0x0))
+
+#define GDT ((struct gdtdata*)(0x7C00+0x150))
+
+
+
+struct fifo{
+	int enext;
+	int dnext;
+	int size;
+	unsigned char buffer[];
+};
+
+
+struct gdtdata{
+	unsigned short Limit1;
+	unsigned short BaseAddress1;
+	unsigned char  BaseAddress2;
+	unsigned char  Flags1;
+	unsigned char Flags2Limit2;
+	unsigned char BaseAddress3;
+};
+
+struct idtdata{
+	unsigned short Handler1;
+	unsigned short HandlerSegment;
+	unsigned char  Unused;
+	unsigned char  Flags;
+	unsigned short Handler2;
+};
+
+
 typedef struct{ 
 	char c;
 	unsigned char color;
@@ -69,24 +101,20 @@ struct trapframe{
 };
 
 //gdtidt.c
-void GDT_Load(int no);
-void GDT_Save(int no);
-void GDT_Clear();
-unsigned int GDT_GetBaseAddress();
-void GDT_SetBaseAddress(unsigned int BaseAddress);
-unsigned int GDT_GetLimit();
-void GDT_SetLimit(unsigned int Limit);
-unsigned short GDT_GetFlags();
-void GDT_SetFlags(unsigned short Flags);
-void IDT_Load(int no);
-void IDT_Save(int no);
-void IDT_Clear();
-unsigned int IDT_GetHandler();
-void IDT_SetHandler(unsigned int Handler);
-unsigned short IDT_GetHandlerSegment();
-void IDT_SetHandlerSegment(unsigned short HandlerSegment);
-unsigned char IDT_GetFlags();
-void IDT_SetFlags(unsigned char Flags);
+void GDT_Clear(struct gdtdata* gdt);
+unsigned int GDT_GetBaseAddress(struct gdtdata* gdt);
+void GDT_SetBaseAddress(struct gdtdata* gdt,unsigned int BaseAddress);
+unsigned int GDT_GetLimit(struct gdtdata* gdt);
+void GDT_SetLimit(struct gdtdata* gdt,unsigned int Limit);
+unsigned short GDT_GetFlags(struct gdtdata* gdt);
+void GDT_SetFlags(struct gdtdata* gdt,unsigned short Flags);
+void IDT_Clear(struct idtdata* idt);
+unsigned int IDT_GetHandler(struct idtdata* idt);
+void IDT_SetHandler(struct idtdata* idt,unsigned int Handler);
+unsigned short IDT_GetHandlerSegment(struct idtdata* idt);
+void IDT_SetHandlerSegment(struct idtdata* idt,unsigned short HandlerSegment);
+unsigned char IDT_GetFlags(struct idtdata* idt);
+void IDT_SetFlags(struct idtdata* idt,unsigned char Flags);
 void IDT_Init();
 void GDTDUMP(int A);
 void IDTDUMP(int A);
@@ -136,3 +164,10 @@ unsigned char inb(unsigned short port);
 unsigned short inw(unsigned short port);
 void sti();
 void cli();
+
+//fifo.c
+void efifo(struct fifo* f,unsigned char data);
+unsigned char dfifo(struct fifo* f);
+struct fifo* createfifo(int size);
+void freefifo(struct fifo* f);
+char isfifoend(struct fifo* f);

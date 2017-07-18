@@ -191,6 +191,7 @@ gdtr:
 	dw gdt_end-gdt-1
 	dd gdt+0x7C00
 
+	times 0x150-($-$$) db 0
 gdt: 
 	dw 0
 	dw 0

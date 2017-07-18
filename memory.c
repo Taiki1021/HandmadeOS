@@ -1,6 +1,6 @@
 #include"defs.h"
 
-#define SEGMENTTABLESIZE 10
+#define SEGMENTTABLESIZE 1024
 
 struct segment{
 	void* addr;

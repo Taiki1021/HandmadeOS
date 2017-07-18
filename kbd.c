@@ -1,13 +1,8 @@
 #include"defs.h"
 
-unsigned char KbdEvBuffer[KBDBUFFERSIZE];
-char InputBuffer[KBDBUFFERSIZE];
-int KBDRHead;
-int KBDWHead;
-int InputRHead;
-int InputWHead;
+struct fifo* KbdFifo;
+struct fifo* InputBuf;
 char SHIFT;
-
 
 char KeyCodeU[0x7F]={
 	0  ,0  ,'!','\"','#','$','%','&','\'','(',')',' ','=','~','\b','\t',
@@ -24,17 +19,15 @@ char KeyCodeD[0x7F]={
 };
 
 void ISR_KBD(struct trapframe* tf){
-	KbdEvBuffer[KBDWHead]=inb(0x60);
-	KBDWHead=(KBDWHead+1)%KBDBUFFERSIZE;
+	efifo(KbdFifo,inb(0x60));
 	return ;
 }
 
 void KBD_Check(){
 	unsigned char A;
 	char B;
-	while(KBDRHead!=KBDWHead){
-		A=KbdEvBuffer[KBDRHead];
-		KBDRHead=(KBDRHead+1)%KBDBUFFERSIZE;
+	while(!isfifoend(KbdFifo)){
+		A=dfifo(KbdFifo);
 		if(!(A & 0x80)){
 			switch(A){
 			case 0x36:
@@ -43,13 +36,12 @@ void KBD_Check(){
 				break;
 			default:
 				if(SHIFT){
-					B=KeyCodeU[A];
+					vputc(KeyCodeU[A]);
+					efifo(InputBuf,KeyCodeU[A]);
 				}else{	
-					B=KeyCodeD[A];
+					vputc(KeyCodeD[A]);
+					efifo(InputBuf,KeyCodeD[A]);
 				}
-				vputc(B);
-				InputBuffer[InputWHead]=B;
-				InputWHead=(InputWHead+1)%KBDBUFFERSIZE;
 				break;
 			}
 		}else{
@@ -64,17 +56,16 @@ void KBD_Check(){
 }
 
 void KBD_Init(){
-	KBDRHead=KBDWHead=0;
-	InputRHead=InputWHead=0;
+	KbdFifo=createfifo(KBDBUFFERSIZE);
+	InputBuf=createfifo(KBDBUFFERSIZE);
+	IntHandler[0x21]=ISR_KBD;
 	SHIFT=0;
 }
 
 char vgetc(){
 	char R;
-	if(InputRHead!=InputWHead){
-		R=InputBuffer[InputRHead];
-		InputRHead=(InputRHead+1)%KBDBUFFERSIZE;
-		return R;
+	if(isfifoend(InputBuf)){
+		return dfifo(InputBuf);
 	}else{
 		return 0;
 	}
