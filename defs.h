@@ -15,15 +15,11 @@
 #define IDT_DPL1	64
 #define IDT_P		128
 
-#define SysCodeSelecter  0x08
-#define SysDataSelecter  0x10
-#define VideoSelecter    0x18
-#define GDTSelecter	 0x20
-#define IDTSelecter	 0x28
-#define UsrCodeSelecter	 0x30
-#define UsrDataSelecter	 0x38
-#define BootSelecter	 0x40
-#define MallocSelecter	 0x48
+#define BootSelecter	 8*1
+#define SysCodeSelecter  8*2
+#define SysDataSelecter  8*3
+#define UsrCodeSelecter	 8*4
+#define UsrDataSelecter	 8*5
 
 #define PROCCOUNT 64
 
@@ -34,8 +30,6 @@
 #define IDT ((struct idtdata*)(0x0))
 
 #define GDT ((struct gdtdata*)(0x7C00+0x150))
-
-
 
 struct fifo{
 	int enext;
@@ -171,3 +165,11 @@ unsigned char dfifo(struct fifo* f);
 struct fifo* createfifo(int size);
 void freefifo(struct fifo* f);
 char isfifoend(struct fifo* f);
+
+//proc.c
+int newproc();
+void Proc_Init();
+void swtch();
+void saveu(); 
+void loadu();
+void IdleProcess();

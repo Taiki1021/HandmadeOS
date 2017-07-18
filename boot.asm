@@ -110,23 +110,8 @@ PM_start:
 	mov fs,ax
 	mov gs,ax
 	mov ss,ax
-	mov esp,0x3600-5 ;カーネルスタックの初期位置はデータセグメントの一番最後
+	mov esp,0x3600-5+0x7E00 ;カーネルスタックの初期位置はデータセグメントの一番最後
 
-;	mov ax,VideoSelecter
-;	mov es,ax
-;	mov esi,0
-;	mov edi,0
-;	mov cx,0x7FF
-;PrintLoop:
-;	mov ah,[ds:esi]
-;	mov [es:edi],ah
-;	inc esi
-;	add edi,2
-;	dec cx
-;	jnz PrintLoop
-
-;	jmp $
-	
 ;カーネルに飛ぶ
 	jmp SysCodeSelecter:0000
 
@@ -175,9 +160,6 @@ Load_End:
 	popad
 	ret
 
-
-
-
 ;========IDTR========================================
 idtr:
 	dw 256*8-1
@@ -200,6 +182,14 @@ gdt:
 	db 0
 	db 0
 
+;BootSelecter
+	dw 0x0200
+	dw 0x7C00
+	db 0x00
+	db 0x9A
+	db 0x40
+	db 0x00
+
 ;SysCodeSelecter
 	dw 0x8200
 	dw 0x0000
@@ -216,30 +206,6 @@ gdt:
 	db 0xCF
 	db 0x00
 
-;VideoSelecter
-	dw 0x8000
-	dw 0x8000
-	db 0x0B
-	db 0x92
-	db 0x40
-	db 0x00
-
-;GDTSelecter
-	dw gdt_end-gdt-1
-	dw gdt+0x7C00
-	db 0x00
-	db 0x92
-	db 0x40
-	db 0x00
-
-;IDTSelecter
-	dw 0x0800
-	dw 0x0000
-	db 0x00
-	db 0x92
-	db 0x40
-	db 0x00
-
 ;UsrCodeSelecter
 	dw 0x0000
 	dw 0x0000
@@ -254,22 +220,6 @@ gdt:
 	db 0x00
 	db 0x92
 	db 0x40
-	db 0x00
-
-;BootSelecter
-	dw 0x0200
-	dw 0x7C00
-	db 0x00
-	db 0x9A
-	db 0x40
-	db 0x00
-
-;MallocSelecter
-	dw 0xFFFF
-	dw 0x0000
-	db 0x10
-	db 0x92
-	db 0x4F
 	db 0x00
 
 gdt_end:

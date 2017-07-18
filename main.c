@@ -7,10 +7,10 @@ int main(){
 	mem_reset();
 	IDT_Init();
 	KBD_Init();
+	Proc_Init();
 	sti();
+
 //システム起動
-	while(1){
-		KBD_Check();
-	}
+	IdleProcess();
 }
 

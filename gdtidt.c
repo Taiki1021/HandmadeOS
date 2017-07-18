@@ -100,7 +100,7 @@ void ISR_IGNORE(struct trapframe* tf){
 	*/
 	//Halt();
 	if(tf->trapno==0x21){
-		Printf("Data:%d\n",inb(0x0060));
+		Printf("Data:%X\n",inb(0x0060));
 	}
 	return ;
 }

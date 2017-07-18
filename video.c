@@ -69,19 +69,15 @@ void clear(){
 
 void schroll(){
 	int A;
+	int B;
 	for(A=0;A<24;A++){
-		VRAM[A*80]=VRAM[(A+1)*80];
+		blockcpy(&VRAM[A*80],&VRAM[(A+1)*80],80*2);
 	}
 	for(A=0;A<80;A++){
 		VRAM[24*80+A].c=' ';
 	}
 	Counter-=80;
 }
-
-
-
-
-
 
 void blockcpy(void* dist,void* src,int size){
 	int A;

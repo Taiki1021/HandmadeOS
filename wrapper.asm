@@ -1,3 +1,4 @@
+%include"selecter.inc"
 [bits 32]
 
 section .text
@@ -61,7 +62,7 @@ CopyFar_End:
 
 Halt:
 	HLT
-	jmp Halt		;終了
+	ret		;終了
 
 outb:
 ;int outb(unsigned short port,unsigned char data);
@@ -114,3 +115,4 @@ cli:
 ;void cli();
 	cli
 	ret
+

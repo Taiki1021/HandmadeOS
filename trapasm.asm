@@ -2,7 +2,9 @@
 
 section .text
 
+
 global alltraps
+global proc_start_asm
 
 extern trap
 

@@ -59,6 +59,10 @@ void KBD_Init(){
 	KbdFifo=createfifo(KBDBUFFERSIZE);
 	InputBuf=createfifo(KBDBUFFERSIZE);
 	IntHandler[0x21]=ISR_KBD;
+	KeyCodeD[0x73]='\\';
+	KeyCodeU[0x73]='_';
+	KeyCodeD[0x7D]='\\';
+	KeyCodeU[0x7D]='|';
 	SHIFT=0;
 }
 

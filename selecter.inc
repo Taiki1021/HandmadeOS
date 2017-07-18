@@ -1,9 +1,5 @@
-SysCodeSelecter equ 0x08
-SysDataSelecter equ 0x10
-VideoSelecter  equ 0x18
-GDTSelecter  equ 0x20
-IDTSelecter equ 0x28
-UsrCodeSelecter equ 0x30
-UsrDataSelecter equ 0x38
-BootSelecter equ 0x40
-MallocSelecter equ 0x48
+BootSelecter 	equ 8*1
+SysCodeSelecter	equ 8*2
+SysDataSelecter	equ 8*3
+UsrCodeSelecter equ 8*4
+UsrDataSelecter equ 8*5
