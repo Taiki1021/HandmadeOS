@@ -11,7 +11,6 @@ void IdleProcess(){
 
 void InitProcess(){
 	while(1){
-		KBD_Check();
 	}
 }
 
@@ -100,7 +99,6 @@ void Proc_Init(){
 
 void swtch(){
 	int A,B,C;
-	int PostProcID=CurrentProcID;
 	B=process[0].CpuTime;
 	C=0;
 	for(A=0;A<PROCCOUNT;A++){
@@ -109,12 +107,12 @@ void swtch(){
 			C=A;
 		}
 	}
-	CurrentProcID=C;
-	GDT_SetBaseAddress(&GDT[3],(unsigned int)process[CurrentProcID].text);
-	GDT_SetLimit(&GDT[3],(unsigned int)process[CurrentProcID].textsize);
-	GDT_SetBaseAddress(&GDT[4],(unsigned int)process[CurrentProcID].data);
-	GDT_SetLimit(&GDT[4],(unsigned int)process[CurrentProcID].datasize);
-	if(CurrentProcID!=PostProcID){
+	if(CurrentProcID!=C){
+		CurrentProcID=C;
+		GDT_SetBaseAddress(&GDT[3],(unsigned int)process[CurrentProcID].text);
+		GDT_SetLimit(&GDT[3],(unsigned int)process[CurrentProcID].textsize);
+		GDT_SetBaseAddress(&GDT[4],(unsigned int)process[CurrentProcID].data);
+		GDT_SetLimit(&GDT[4],(unsigned int)process[CurrentProcID].datasize);
 		farjmp(0,TssSelecter(CurrentProcID));
 	}
 	return ;
