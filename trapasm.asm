@@ -28,10 +28,10 @@ alltraps:
 	call trap
 	add esp,4
 
-	mov al,0x20
-	out 0x20,al
-	dw 0x00eb,0x00eb
-	out 0xA0,al
+;	mov al,0x20
+;	out 0x20,al
+;	dw 0x00eb,0x00eb
+;	out 0xA0,al
 
 	popad
 	pop gs

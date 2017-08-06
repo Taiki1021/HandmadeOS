@@ -10,7 +10,11 @@ global inb
 global inw
 global sti
 global cli
+global syscall
+global farjmp
 global lidt
+global lgdt
+global ltr
 
 CopyFar:
 ;void CopyFar(unsigned short DistSelecter,void* DistOffset,int DStep,unsigned short SrcSelecter,void* SrcOffset,int SStep,int n);
@@ -116,3 +120,54 @@ cli:
 	cli
 	ret
 
+
+syscall:
+;void syscall(int a,int b,int c,int d,int e,int f);
+	push eax
+	push ebx
+	push ecx
+	push edx
+	push esi
+	push edi
+	mov eax,[ss:(esp+4*6+4*1)]
+	mov ebx,[ss:(esp+4*6+4*2)]
+	mov ecx,[ss:(esp+4*6+4*3)]
+	mov edx,[ss:(esp+4*6+4*4)]
+	mov esi,[ss:(esp+4*6+4*5)]
+	mov edi,[ss:(esp+4*6+4*6)]
+	int 0x80
+	pop edi
+	pop esi
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	ret
+
+
+farjmp:
+;void farjmp(int eip,int cs);
+	jmp far [esp+4]
+	ret
+
+lgdt:
+;void lgdt(void* gdtr);
+	push esi
+	mov esi,[esp+8]
+	lgdt [ds:esi]
+	pop esi
+	ret
+
+lidt:
+;void lidt(void* idtr);
+	push esi
+	mov esi,[esp+8]
+	lidt [ds:esi]
+	pop esi
+	ret
+
+ltr:
+;void ltr(unsigned short selecter);
+	mov eax,[esp+4]
+	ltr ax
+	ret

@@ -20,6 +20,7 @@ char KeyCodeD[0x7F]={
 
 void ISR_KBD(struct trapframe* tf){
 	efifo(KbdFifo,inb(0x60));
+	SolvePICLock();
 	return ;
 }
 

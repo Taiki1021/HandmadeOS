@@ -1,4 +1,8 @@
 %include"selecter.inc"
+
+;ブートローダーではカーネルの読み込みと最低限の設定をしてカーネルに処理を移す
+;細かい設定はカーネルの方で行う
+
 [org 0]
 	jmp 0x07C0:start
 
@@ -10,7 +14,6 @@ start:
 	mov ax,0x9000
 	mov ss,ax
 	mov sp,0xFFFF
-
 
 ;カーネルロード
 	mov ax,0x07E0 
@@ -35,58 +38,10 @@ start:
 	xor al,al
 	out dx,al
 
-
-;PICの設定
 	cli
 
-	mov al,0x11
-	out 0x20,al
-	dw 0x00eb,0x00eb
-	out 0xA0,al
-	dw 0x00eb,0x00eb
-	
-	mov al,0x20
-	out 0x21,al
-	dw 0x00eb,0x00eb
-	mov al,0x28
-	out 0xA1,al
-	dw 0x00eb,0x00eb
-
-	mov al,0x04
-	out 0x21,al
-	dw 0x00eb,0x00eb
-	mov al,0x02
-	out 0xA1,al
-	dw 0x00eb,0x00eb
-
-	mov al,0x01
-	out 0x21,al
-	dw 0x00eb,0x00eb
-	out 0xA1,al
-	dw 0x00eb,0x00eb
-
-	mov al,0xFB
-	xor al,0x03
-	out 0x21,al
-	dw 0x00eb,0x00eb
-	mov al,0xFF
-	xor al,0x00
-	out 0xA1,al
-
-;A20ゲートオン
-	call waitkbdout
-	mov al,0xd1
-	out 0x64,al
-	call waitkbdout
-	mov al,0xdf
-	out 0x60,al
-	call waitkbdout
-
-	
-
 ;GDT IDTの登録
-	lgdt [gdtr]    ;GDTを登録
-	lidt [idtr]
+	lgdt [gdtr]    ;仮のGDTを登録 あとでカーネルがちゃんとGDTを決める
 
 ;保護モードに入る
 	mov eax,cr0		
@@ -100,29 +55,6 @@ start:
 	db 0x66
 	db 0x67
 	jmp DWORD BootSelecter:PM_start
-
-[bits 32]
-PM_start:
-;セグメントレジスタ初期化
-	mov ax,SysDataSelecter
-	mov ds,ax
-	mov es,ax
-	mov fs,ax
-	mov gs,ax
-	mov ss,ax
-	mov esp,0x3600-5+0x7E00 ;カーネルスタックの初期位置はデータセグメントの一番最後
-
-;カーネルに飛ぶ
-	jmp SysCodeSelecter:0000
-
-
-[bits 16]
-
-waitkbdout:
-	in al,0x64
-	test al,2
-	jnz waitkbdout
-	ret
 
 Load:
 	pushad
@@ -160,15 +92,23 @@ Load_End:
 	popad
 	ret
 
-;========IDTR========================================
-idtr:
-	dw 256*8-1
-	dd 0
+[bits 32]
+PM_start:
+;セグメントレジスタ初期化
+	mov ax,SysDataSelecter
+	mov ds,ax
+	mov es,ax
+	mov fs,ax
+	mov gs,ax
+	mov ss,ax
+	mov esp,0x3600-5+0x7E00 ;カーネルスタックの初期位置はデータセグメントの一番最後
+
+;カーネルに飛ぶ
+	jmp SysCodeSelecter:0000
 
 
 ;========GDT==========================================
-
-
+;ここにはカーネルを起動するための必要最低限のディスクリプタを定義する
 gdtr:
 	dw gdt_end-gdt-1
 	dd gdt+0x7C00
@@ -181,14 +121,6 @@ gdt:
 	db 0
 	db 0
 	db 0
-
-;BootSelecter
-	dw 0x0200
-	dw 0x7C00
-	db 0x00
-	db 0x9A
-	db 0x40
-	db 0x00
 
 ;SysCodeSelecter
 	dw 0x8200
@@ -206,24 +138,15 @@ gdt:
 	db 0xCF
 	db 0x00
 
-;UsrCodeSelecter
-	dw 0x0000
-	dw 0x0000
+;BootSelecter
+	dw 0x0200
+	dw 0x7C00
 	db 0x00
 	db 0x9A
 	db 0x40
 	db 0x00
 
-;UsrDataSelecter
-	dw 0x0000
-	dw 0x0000
-	db 0x00
-	db 0x92
-	db 0x40
-	db 0x00
-
 gdt_end:
-
 ;=======================================================
 
 	times 510-($-$$) db 0

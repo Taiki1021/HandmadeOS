@@ -1,38 +1,7 @@
 #include"defs.h"
 
-typedef struct{
-	char p_stat;
-	void* p_text;	//プロセステキストセグメント
-	int p_textsize;
-	void* p_data;	//プロセスデータセグメント
-	unsigned int p_datasize;
-	struct trapframe Context;
-	int  pid;
-	int  ppid;
-} proc;
-
 proc process[PROCCOUNT];
 int  CurrentProcID;
-
-int newproc(){
-	int A;
-	for(A=0;A<PROCCOUNT;A++){
-		if(!process[A].p_stat){
-			process[A].p_stat=1;
-			process[A].p_text=process[CurrentProcID].p_text;
-			process[A].p_textsize=process[CurrentProcID].p_textsize;
-			process[A].p_datasize=process[CurrentProcID].p_datasize;
-			process[A].pid=A;
-			process[A].ppid=CurrentProcID;
-			process[A].p_data=mem_alloc(process[A].p_datasize);
-			blockcpy(&process[A].Context,&process[CurrentProcID].Context,sizeof(struct trapframe));
-			process[A].p_data=mem_alloc(process[A].p_datasize);
-			blockcpy(process[A].p_data,process[CurrentProcID].p_data,process[A].p_datasize);
-			return A;
-		}
-	}
-	return -1;
-}
 
 void IdleProcess(){
 	while(1){
@@ -40,102 +9,113 @@ void IdleProcess(){
 	}
 }
 
-void ProcTest(){
+void InitProcess(){
 	while(1){
 		KBD_Check();
 	}
 }
 
-void ProcTest2(){
-	unsigned char A;
-	while(1){
-		A++;
-		VRAM[40].c=A;
-	}
+void ISR_TIMER(struct trapframe* tf){
+	process[CurrentProcID].CpuTime++;
+	SolvePICLock();
+	swtch();
+	return ;
 }
 
-void ISR_TIMER(struct trapframe* tf){
-	saveu(tf);
-	CurrentProcID=(CurrentProcID+1)%3;
-//	swtch();
-	loadu(tf);
-	return ;
+
+int  Proc_Run(void* text,int datasize){
+	int A;
+	for(A=0;A<PROCCOUNT;A++){
+		if(process[A].p_stat==0)break;
+	}
+	process[A].p_stat=1;
+	process[A].text=0x10000;
+	process[A].textsize=0xFFFFFFFF;
+	process[A].data=mem_alloc(datasize);
+	process[A].datasize=datasize;
+	process[A].Context.eip=(unsigned int)text;
+	process[A].Context.eflags=0x00000202;
+	process[A].Context.eax=0;
+	process[A].Context.ecx=0;
+	process[A].Context.edx=0;
+	process[A].Context.ebx=0;
+	process[A].Context.esp=process[A].data+datasize-5;
+	process[A].Context.ebp=0;
+	process[A].Context.esi=0;
+	process[A].Context.edi=0;
+	process[A].Context.cs=UsrCodeSelecter;
+	process[A].Context.es=UsrDataSelecter;
+	process[A].Context.ss=UsrDataSelecter;
+	process[A].Context.ds=UsrDataSelecter;
+	process[A].Context.fs=UsrDataSelecter;
+	process[A].Context.gs=UsrDataSelecter;
+	process[A].CpuTime=0;  //TODO:親プロセス用に修正
+	return A;
 }
 
 void Proc_Init(){
 	int A;
 	IntHandler[0x20]=ISR_TIMER;
-	for(A=0;A<PROCCOUNT;A++)process[A].p_stat=0;
-	process[0].p_stat=1;
-	process[0].p_data=0;
-	process[0].p_datasize=0xFFFFFFFF;
-	process[0].p_text=IdleProcess;
-	process[0].pid=0;
-	process[0].ppid=0;
+	for(A=0;A<PROCCOUNT;A++)process[A].p_stat=SDEAD;
+	for(A=0;A<PROCCOUNT;A++){
+		GDT_SetBaseAddress(&PDT[A],&process[A].Context);
+	}
 
-	process[1].p_stat=1;
-	process[1].p_data=0;
-	process[1].p_datasize=0xFFFFFFFF;
-	process[1].p_text=ProcTest;
-	process[1].pid=1;
-	process[1].ppid=0;
-	process[1].Context.eip=(unsigned int)process[1].p_text;
+	process[0].p_stat=SRUN;
+	process[0].text=IdleProcess;
+	process[0].textsize=0xFFFF;
+	process[0].data=(void*)0;
+	process[0].datasize=0xFFFFFFFF;
+	process[0].CpuTime=0;
+
+	process[1].p_stat=SRUN;
+	process[1].text=InitProcess;
+	process[1].textsize=0xFFFF;
+	process[1].data=(void*)0;
+	process[1].datasize=0xFFFFFFFF;
+	process[1].CpuTime=0;
+	process[1].Context.eip=(unsigned int)InitProcess;
 	process[1].Context.eflags=0x00000202;
 	process[1].Context.eax=0;
 	process[1].Context.ecx=0;
 	process[1].Context.edx=0;
 	process[1].Context.ebx=0;
-	process[1].Context.esp=(unsigned int)mem_alloc(1000)+1000-5;
+	process[1].Context.esp=0x7E00-5;
 	process[1].Context.ebp=0;
 	process[1].Context.esi=0;
 	process[1].Context.edi=0;
-	process[1].Context.es=SysDataSelecter;
 	process[1].Context.cs=SysCodeSelecter;
+	process[1].Context.es=SysDataSelecter;
 	process[1].Context.ss=SysDataSelecter;
 	process[1].Context.ds=SysDataSelecter;
 	process[1].Context.fs=SysDataSelecter;
 	process[1].Context.gs=SysDataSelecter;
+	process[1].CpuTime=0; 
 
-	process[2].p_stat=1;
-	process[2].p_data=0;
-	process[2].p_datasize=0xFFFFFFFF;
-	process[2].p_text=ProcTest2;
-	process[2].pid=2;
-	process[2].ppid=0;
-	process[2].Context.eip=(int)process[2].p_text;
-	process[2].Context.eflags=0x00000202;
-	process[2].Context.eax=0;
-	process[2].Context.ecx=0;
-	process[2].Context.edx=0;
-	process[2].Context.ebx=0;
-	process[2].Context.esp=(unsigned int)mem_alloc(1000)+1000-5;
-	process[2].Context.ebp=0;
-	process[2].Context.esi=0;
-	process[2].Context.edi=0;
-	process[2].Context.es=SysDataSelecter;
-	process[2].Context.cs=SysCodeSelecter;
-	process[2].Context.ss=SysDataSelecter;
-	process[2].Context.ds=SysDataSelecter;
-	process[2].Context.fs=SysDataSelecter;
-	process[2].Context.gs=SysDataSelecter;
+	CurrentProcID=0;
+	ltr(TssSelecter(0));
 
 	return ;
 }
 
 void swtch(){
-	do{
-		CurrentProcID=(CurrentProcID+1)%PROCCOUNT;
-	}while(!process[CurrentProcID].p_stat);
-	Printf("%d\n",CurrentProcID);
-	return ;
-}
-
-void saveu(struct trapframe* tf){ 
-	blockcpy(&process[CurrentProcID].Context,tf,sizeof(struct trapframe));
-	return ;
-}
-
-void loadu(struct trapframe* tf){
-	blockcpy(tf,&process[CurrentProcID].Context,sizeof(struct trapframe));
+	int A,B,C;
+	int PostProcID=CurrentProcID;
+	B=process[0].CpuTime;
+	C=0;
+	for(A=0;A<PROCCOUNT;A++){
+		if((process[A].p_stat==SRUN) && (B>process[A].CpuTime)){
+			B=process[A].CpuTime;
+			C=A;
+		}
+	}
+	CurrentProcID=C;
+	GDT_SetBaseAddress(&GDT[3],(unsigned int)process[CurrentProcID].text);
+	GDT_SetLimit(&GDT[3],(unsigned int)process[CurrentProcID].textsize);
+	GDT_SetBaseAddress(&GDT[4],(unsigned int)process[CurrentProcID].data);
+	GDT_SetLimit(&GDT[4],(unsigned int)process[CurrentProcID].datasize);
+	if(CurrentProcID!=PostProcID){
+		farjmp(0,TssSelecter(CurrentProcID));
+	}
 	return ;
 }

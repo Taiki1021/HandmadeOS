@@ -15,103 +15,145 @@
 #define IDT_DPL1	64
 #define IDT_P		128
 
-#define BootSelecter	 8*1
-#define SysCodeSelecter  8*2
-#define SysDataSelecter  8*3
-#define UsrCodeSelecter	 8*4
-#define UsrDataSelecter	 8*5
+#define SysCodeSelecter  8*1
+#define SysDataSelecter  8*2
+#define UsrCodeSelecter	 8*3
+#define UsrDataSelecter	 8*4
 
-#define PROCCOUNT 64
+#define BootSelecter	 8*3
+
+#define PROCCOUNT 16
 
 #define KBDBUFFERSIZE 1024
 
 #define VRAM ((vramdata*)(0xB8000))
 
-#define IDT ((struct idtdata*)(0x0))
 
-#define GDT ((struct gdtdata*)(0x7C00+0x150))
+#define IDTCOUNT	256
+#define TSSCOUNT	(PROCCOUNT)
+#define SEGMENTCOUNT	5
+#define GDTCOUNT	(SEGMENTCOUNT+TSSCOUNT)
+
+#define IDT ((struct idtdata*)(0))
+#define GDT ((struct gdtdata*)(256*8))
+#define PDT ((struct gdtdata*)((uint)GDT+SEGMENTCOUNT*8))
+
+#define TssSelecter(no) (8*(SEGMENTCOUNT+no))
+
+#define SDEAD	0
+#define SRUN	1
+#define SWAIT	2
+
+
+typedef unsigned short	ushort;
+typedef unsigned int 	uint;
+typedef unsigned char	uchar;
+
+
+struct TSS{
+	uint backlink,esp0,ss0,esp1,ss1,esp2,ss2,cr3;
+	uint eip,eflags,eax,ecx,edx,ebx,esp,ebp,esi,edi;
+	uint es,cs,ss,ds,fs,gs;
+	uint ldtr,iomap;
+};
+
+typedef struct{
+	char p_stat;
+	struct TSS Context;
+	void* text;
+	uint textsize;
+	void* data;
+	uint datasize;
+	int wchan;
+	uint CpuTime;
+} proc;
 
 struct fifo{
 	int enext;
 	int dnext;
 	int size;
-	unsigned char buffer[];
+	uchar buffer[];
 };
 
 
 struct gdtdata{
-	unsigned short Limit1;
-	unsigned short BaseAddress1;
-	unsigned char  BaseAddress2;
-	unsigned char  Flags1;
-	unsigned char Flags2Limit2;
-	unsigned char BaseAddress3;
+	ushort Limit1;
+	ushort BaseAddress1;
+	uchar  BaseAddress2;
+	uchar  Flags1;
+	uchar Flags2Limit2;
+	uchar BaseAddress3;
 };
 
 struct idtdata{
-	unsigned short Handler1;
-	unsigned short HandlerSegment;
-	unsigned char  Unused;
-	unsigned char  Flags;
-	unsigned short Handler2;
+	ushort Handler1;
+	ushort HandlerSegment;
+	uchar  Unused;
+	uchar  Flags;
+	ushort Handler2;
 };
-
 
 typedef struct{ 
 	char c;
-	unsigned char color;
+	uchar color;
 } vramdata;
 
 struct trapframe{
-	unsigned int edi;
-	unsigned int esi;
-	unsigned int ebp;
-	unsigned int oesp;
-	unsigned int ebx;
-	unsigned int edx;
-	unsigned int ecx; 
-	unsigned int eax;
+	uint edi;
+	uint esi;
+	uint ebp;
+	uint oesp;
+	uint ebx;
+	uint edx;
+	uint ecx; 
+	uint eax;
 
-	unsigned short gs;
-	unsigned short padding1;
-	unsigned short fs;
-	unsigned short padding2;
-	unsigned short es;
-	unsigned short padding3;
-	unsigned short ds;
-	unsigned short padding4;
+	ushort gs;
+	ushort padding1;
+	ushort fs;
+	ushort padding2;
+	ushort es;
+	ushort padding3;
+	ushort ds;
+	ushort padding4;
 
-	unsigned int trapno;
+	uint trapno;
 
-	unsigned int err;
-	unsigned int eip;
-	unsigned short cs;
-	unsigned short padding5;
-	unsigned int eflags;
+	uint err;
+	uint eip;
+	ushort cs;
+	ushort padding5;
+	uint eflags;
 
-	unsigned int esp;
-	unsigned short ss;
-	unsigned short padding6;
+	uint esp;
+	ushort ss;
+	ushort padding6;
 };
 
+extern proc process[PROCCOUNT];
+extern int CurrentProcID;
+
 //gdtidt.c
-void GDT_Clear(struct gdtdata* gdt);
-unsigned int GDT_GetBaseAddress(struct gdtdata* gdt);
-void GDT_SetBaseAddress(struct gdtdata* gdt,unsigned int BaseAddress);
-unsigned int GDT_GetLimit(struct gdtdata* gdt);
-void GDT_SetLimit(struct gdtdata* gdt,unsigned int Limit);
-unsigned short GDT_GetFlags(struct gdtdata* gdt);
-void GDT_SetFlags(struct gdtdata* gdt,unsigned short Flags);
-void IDT_Clear(struct idtdata* idt);
-unsigned int IDT_GetHandler(struct idtdata* idt);
-void IDT_SetHandler(struct idtdata* idt,unsigned int Handler);
-unsigned short IDT_GetHandlerSegment(struct idtdata* idt);
-void IDT_SetHandlerSegment(struct idtdata* idt,unsigned short HandlerSegment);
-unsigned char IDT_GetFlags(struct idtdata* idt);
-void IDT_SetFlags(struct idtdata* idt,unsigned char Flags);
-void IDT_Init();
-void GDTDUMP(int A);
-void IDTDUMP(int A);
+void	GDT_Clear(struct gdtdata* gdt);
+uint	GDT_GetBaseAddress(struct gdtdata* gdt);
+void	GDT_SetBaseAddress(struct gdtdata* gdt,uint BaseAddress);
+uint 	GDT_GetLimit(struct gdtdata* gdt);
+void 	GDT_SetLimit(struct gdtdata* gdt,uint Limit);
+ushort	GDT_GetFlags(struct gdtdata* gdt);
+void 	GDT_SetFlags(struct gdtdata* gdt,ushort Flags);
+void 	GDT_SET(struct gdtdata* gdt,uint Limit,uint BaseAddress,ushort Flags);
+void 	GDT_Init();
+void 	GDTDUMP(int A);
+void 	IDT_Clear(struct idtdata* idt);
+uint 	IDT_GetHandler(struct idtdata* idt);
+void 	IDT_SetHandler(struct idtdata* idt,uint Handler);
+ushort 	IDT_GetHandlerSegment(struct idtdata* idt);
+void 	IDT_SetHandlerSegment(struct idtdata* idt,ushort HandlerSegment);
+uchar 	IDT_GetFlags(struct idtdata* idt);
+void 	IDT_SetFlags(struct idtdata* idt,uchar Flags);
+void 	IDT_SET(struct idtdata* idt,ushort Segment,uint Handler,uchar Flags);
+void 	IDT_Init();
+void 	IDTDUMP(int A);
 
 
 //kbd.c
@@ -132,11 +174,12 @@ int mem_num();
 extern void (*IntHandler[256])(struct trapframe*);
 extern void* vectors[256];
 void trap(struct trapframe* ft);
+void SolvePICLock();
 //trapasm.asm
 void alltraps();
 
 //video.c
-void setcursor(unsigned short pos);
+void setcursor(ushort pos);
 void vputc(char c);
 void vputs(char* str);
 void clear();
@@ -151,25 +194,27 @@ void Printf(char* form,...);
 
 //wrapper.asm
 void Halt();
-void CopyFar(unsigned short DistSelecter,void* DistOffset,int DStep,unsigned short SrcSelecter,void* SrcOffset,int SStep,int n);
-int outb(unsigned short port,unsigned char data);
-int outw(unsigned short port,unsigned short data);
-unsigned char inb(unsigned short port);
-unsigned short inw(unsigned short port);
+void CopyFar(ushort DistSelecter,void* DistOffset,int DStep,ushort SrcSelecter,void* SrcOffset,int SStep,int n);
+int outb(ushort port,uchar data);
+int outw(ushort port,ushort data);
+unsigned char inb(ushort port);
+unsigned short inw(ushort port);
 void sti();
 void cli();
+void syscall(int a,int b,int c,int d,int e,int f);
+void farjmp(int eip,int cs);
+void lgdt(void* gdtr);
+void lidt(void* idtr);
+void ltr(ushort selecter);
 
 //fifo.c
-void efifo(struct fifo* f,unsigned char data);
-unsigned char dfifo(struct fifo* f);
+void efifo(struct fifo* f,uchar data);
+uchar dfifo(struct fifo* f);
 struct fifo* createfifo(int size);
 void freefifo(struct fifo* f);
 char isfifoend(struct fifo* f);
 
 //proc.c
-int newproc();
 void Proc_Init();
 void swtch();
-void saveu(); 
-void loadu();
 void IdleProcess();

@@ -39,6 +39,13 @@ void GDT_SetFlags(struct gdtdata* gdt,unsigned short Flags){
 	gdt->Flags2Limit2 |= ((Flags >> 8) & 0x0F) << 4; 
 }
 
+void GDT_SET(struct gdtdata* gdt,uint Limit,uint BaseAddress,ushort Flags){
+	GDT_Clear(gdt);
+	GDT_SetBaseAddress(gdt,BaseAddress);
+	GDT_SetLimit(gdt,Limit);
+	GDT_SetFlags(gdt,GDT_GetFlags(gdt) | Flags);
+}
+
 
 void IDT_Clear(struct idtdata* idt){
 	idt->Handler1=0;
@@ -73,69 +80,103 @@ void IDT_SetFlags(struct idtdata* idt,unsigned char Flags){
 	idt->Flags=Flags;
 }
 
+void IDT_SET(struct idtdata* idt,ushort Segment,uint Handler,uchar Flags){
+	IDT_Clear(idt);
+	IDT_SetHandler(idt,Handler);
+	IDT_SetHandlerSegment(idt,Segment);
+	IDT_SetFlags(idt,IDT_GetFlags(idt) | Flags);
+}
+
 void ISR_IGNORE(struct trapframe* tf){
-	//printf("Interrupt!! 0x%X %d\n",tf->trapno,tf->trapno);
-/*	
-	Printf("EDI:%X\n",tf->edi);
-	Printf("ESI:%X\n",tf->esi);
-	Printf("EBP:%X\n",tf->ebp);
-	Printf("ESP:%X\n",tf->esp);
-	Printf("EBX:%X\n",tf->ebx);
-	Printf("EDX:%X\n",tf->edx);
-	Printf("ECX:%X\n",tf->ecx);
-	Printf("EAX:%X\n",tf->eax);
+	if(tf->trapno<0x20){
+		Printf("Interrupt!! %d\n",tf->trapno,tf->trapno);
 
-	Printf("gs:%X\n",tf->gs);
-	Printf("fs:%X\n",tf->fs);
-	Printf("es:%X\n",tf->es);
-	Printf("ds:%X\n",tf->ds);
+		Printf("Current process:%d\n",CurrentProcID);
+	
+		Printf("EDI:0x%X\n",tf->edi);
+		Printf("ESI:0x%X\n",tf->esi);
+		Printf("EBP:0x%X\n",tf->ebp);
+		Printf("ESP:0x%X\n",tf->esp);
+		Printf("EBX:0x%X\n",tf->ebx);
+		Printf("EDX:0x%X\n",tf->edx);
+		Printf("ECX:0x%X\n",tf->ecx);
+		Printf("EAX:0x%X\n",tf->eax);
 
-	Printf("trapno:%X\n",tf->trapno);
-	Printf("err:%X\n",tf->err);
-	Printf("cs:%X\n",tf->cs);
-	Printf("eflags:%X\n",tf->eflags);
+		Printf("EIP:0x%X\n",tf->eip);
+		Printf("ESP:0x%X\n",tf->esp);
 
-	Printf("ESP:%X\n",tf->esp);
-	Printf("ss:%X\n",tf->ss);
-	*/
-	//Halt();
-	if(tf->trapno==0x21){
-		Printf("Data:%X\n",inb(0x0060));
+		Printf("gs:0x%X\n",tf->gs);
+		Printf("fs:0x%X\n",tf->fs);
+		Printf("es:0x%X\n",tf->es);
+		Printf("ds:0x%X\n",tf->ds);
+		Printf("cs:0x%X\n",tf->cs);
+		Printf("ss:0x%X\n",tf->ss);
+
+		Printf("trapno:%d\n",tf->trapno);
+		Printf("err:0x%X\n",tf->err);
+		Printf("eflags:0x%X\n",tf->eflags);
+
+		while(1)Halt();
 	}
+	SolvePICLock();
 	return ;
 }
 
 void IDT_Init(){
 	int A;
+	uchar idtr[6];
+
 	for(A=0;A<256;A++){
-		IDT_Clear(&IDT[A]);
-		IDT_SetHandlerSegment(&IDT[A],SysCodeSelecter);
-		IDT_SetFlags(&IDT[A],IDT_GetFlags(&IDT[A]) | IDT_D | IDT_P);
-		IDT_SetHandler(&IDT[A],(int)vectors[A]);
+		IDT_SET(&IDT[A],SysCodeSelecter,(uint)vectors[A], IDT_D | IDT_P);
 	}
 
 	for(A=0;A<256;A++){
 		IntHandler[A]=ISR_IGNORE;
 	}
+
+	//TODO:全てのハンドラ定義をここに書く
+
+	idtr[0]=(IDTCOUNT*8-1);
+	idtr[1]=(IDTCOUNT*8-1)>>8;
+	idtr[2]=(uint)(IDT);
+	idtr[3]=(uint)(IDT)>>8;
+	idtr[4]=(uint)(IDT)>>16;
+	idtr[5]=(uint)(IDT)>>24;
+	lidt(idtr); //IDTの登録
+}
+
+void GDT_Init(){
+	int A;
+	uchar gdtr[6];
+
+	GDT_SET(&GDT[0],0,0,0);
+	GDT_SET(&GDT[1],0x8200,0x10000,	GDT_P|GDT_S|GDT_D|      GDT_TYPE3|GDT_TYPE1);
+	GDT_SET(&GDT[2],0xFFFFF,0x0,	GDT_P|GDT_S|GDT_D|GDT_G|          GDT_TYPE1);
+	GDT_SET(&GDT[3],0x0,0x0,	GDT_P|GDT_S|GDT_D|      GDT_TYPE3|GDT_TYPE1|GDT_DPL1|GDT_DPL0);
+	GDT_SET(&GDT[4],0x0,0x0,	GDT_P|GDT_S|GDT_D|GDT_G|          GDT_TYPE1|GDT_DPL1|GDT_DPL0);
+
+	for(A=0;A<TSSCOUNT;A++){
+		GDT_SET(&GDT[A+SEGMENTCOUNT],104,0x0,	GDT_P|GDT_TYPE3|GDT_TYPE0);
+	}
+
+	gdtr[0]=(GDTCOUNT*8-1);
+	gdtr[1]=(GDTCOUNT*8-1)>>8;
+	gdtr[2]=(uint)(GDT);
+	gdtr[3]=(uint)(GDT)>>8;
+	gdtr[4]=(uint)(GDT)>>16;
+	gdtr[5]=(uint)(GDT)>>24;
+	lgdt(gdtr); //GDTの登録
 }
 
 
 void GDTDUMP(int A){
 	struct gdtdata* g;
 	g=&GDT[A];
-	Printf("GDTNo.%d\n",A);
-	Printf("BaseAddress:\t0x%X\n",GDT_GetBaseAddress(g));
-	Printf("Limit:\t%X\n",GDT_GetLimit(g));
-	Printf("Type:\t%d%d%d%d\n",!!(GDT_GetFlags(g) & GDT_TYPE3),!!(GDT_GetFlags(g) & GDT_TYPE2),!!(GDT_GetFlags(g) & GDT_TYPE1),!!(GDT_GetFlags(g) & GDT_TYPE0));
-	Printf("DPL:\t%d%d\n",!!(GDT_GetFlags(g) & GDT_DPL1),!!(GDT_GetFlags(g) & GDT_DPL0));
-	Printf("AVL:\t%d\n",!!(GDT_GetFlags(g) & GDT_AVL));
-	Printf("PSDG:\t%d%d%d%d\n",!!(GDT_GetFlags(g) & GDT_P),!!(GDT_GetFlags(g) & GDT_S),!!(GDT_GetFlags(g) & GDT_D),!!(GDT_GetFlags(g) & GDT_G));
+	Printf("%d Limit:0x%X Base:0x%X Flag:%X\n",A,GDT_GetLimit(g),GDT_GetBaseAddress(g),GDT_GetFlags(g));
 }
 
 void IDTDUMP(int A){
 	struct idtdata* i;
 	i=&IDT[A];
-	Printf("IDTNo.%d\n",A);
-	Printf("Handler:\t%X\n",IDT_GetHandler(i));
-	Printf("HandlerSegment:\t%X\n",IDT_GetHandlerSegment(i));
+	Printf("%d Segment:%X Handler:%X Flags:%X\n",A,IDT_GetHandlerSegment(i),IDT_GetHandler(i),IDT_GetFlags(i));
 }
