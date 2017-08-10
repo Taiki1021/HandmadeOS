@@ -131,7 +131,7 @@ struct trapframe{
 };
 
 extern proc process[PROCCOUNT];
-extern int CurrentProcID;
+extern int CurrentProc;
 
 //gdtidt.c
 void	GDT_Clear(struct gdtdata* gdt);

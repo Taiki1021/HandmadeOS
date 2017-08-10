@@ -91,7 +91,7 @@ void ISR_IGNORE(struct trapframe* tf){
 	if(tf->trapno<0x20){
 		Printf("Interrupt!! %d\n",tf->trapno,tf->trapno);
 
-		Printf("Current process:%d\n",CurrentProcID);
+		Printf("Current process:%d\n",CurrentProc);
 	
 		Printf("EDI:0x%X\n",tf->edi);
 		Printf("ESI:0x%X\n",tf->esi);

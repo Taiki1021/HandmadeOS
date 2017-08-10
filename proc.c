@@ -1,7 +1,7 @@
 #include"defs.h"
 
 proc process[PROCCOUNT];
-int  CurrentProcID;
+int  CurrentProc;
 
 void IdleProcess(){
 	while(1){
@@ -33,7 +33,7 @@ void TestProcess2(){
 }
 
 void ISR_TIMER(struct trapframe* tf){
-	process[CurrentProcID].CpuTime++;
+	process[CurrentProc].CpuTime++;
 	SolvePICLock();
 	swtch();
 	return ;
@@ -133,7 +133,7 @@ void Proc_Init(){
 	process[2].Context.gs=SysDataSelecter;
 	process[2].CpuTime=0; 
 
-	CurrentProcID=0;
+	CurrentProc=0;
 	ltr(TssSelecter(0));
 
 	return ;
@@ -149,13 +149,13 @@ void swtch(){
 			C=A;
 		}
 	}
-	if(CurrentProcID!=C){
-		CurrentProcID=C;
-		GDT_SetBaseAddress(&GDT[3],(unsigned int)process[CurrentProcID].text);
-		GDT_SetLimit(&GDT[3],(unsigned int)process[CurrentProcID].textsize);
-		GDT_SetBaseAddress(&GDT[4],(unsigned int)process[CurrentProcID].data);
-		GDT_SetLimit(&GDT[4],(unsigned int)process[CurrentProcID].datasize);
-		farjmp(0,TssSelecter(CurrentProcID));
+	if(CurrentProc!=C){
+		CurrentProc=C;
+		GDT_SetBaseAddress(&GDT[3],(unsigned int)process[CurrentProc].text);
+		GDT_SetLimit(&GDT[3],(unsigned int)process[CurrentProc].textsize);
+		GDT_SetBaseAddress(&GDT[4],(unsigned int)process[CurrentProc].data);
+		GDT_SetLimit(&GDT[4],(unsigned int)process[CurrentProc].datasize);
+		farjmp(0,TssSelecter(CurrentProc));
 	}
 	return ;
 }
