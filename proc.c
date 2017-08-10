@@ -14,6 +14,24 @@ void InitProcess(){
 	}
 }
 
+void TestProcess1(){
+	int A;
+	char Buf[64];
+	while(1){
+		sformat(Buf,"This is TestProcess1 %d",A++);
+		CopyFar(SysDataSelecter,(void*)((uint)VRAM+0*2),2,SysDataSelecter,(void*)Buf,1,64);
+	}
+}
+
+void TestProcess2(){
+	int A;
+	char Buf[64];
+	while(1){
+		sformat(Buf,"This is TestProcess2 %d",A--);
+		CopyFar(SysDataSelecter,(void*)((uint)VRAM+80*2),2,SysDataSelecter,(void*)Buf,1,64);
+	}
+}
+
 void ISR_TIMER(struct trapframe* tf){
 	process[CurrentProcID].CpuTime++;
 	SolvePICLock();
@@ -73,13 +91,13 @@ void Proc_Init(){
 	process[1].data=(void*)0;
 	process[1].datasize=0xFFFFFFFF;
 	process[1].CpuTime=0;
-	process[1].Context.eip=(unsigned int)InitProcess;
+	process[1].Context.eip=(unsigned int)TestProcess1;
 	process[1].Context.eflags=0x00000202;
 	process[1].Context.eax=0;
 	process[1].Context.ecx=0;
 	process[1].Context.edx=0;
 	process[1].Context.ebx=0;
-	process[1].Context.esp=0x7E00-5;
+	process[1].Context.esp=(uint)mem_alloc(1000)+1000-5;
 	process[1].Context.ebp=0;
 	process[1].Context.esi=0;
 	process[1].Context.edi=0;
@@ -90,6 +108,30 @@ void Proc_Init(){
 	process[1].Context.fs=SysDataSelecter;
 	process[1].Context.gs=SysDataSelecter;
 	process[1].CpuTime=0; 
+
+	process[2].p_stat=SRUN;
+	process[2].text=InitProcess;
+	process[2].textsize=0xFFFF;
+	process[2].data=(void*)0;
+	process[2].datasize=0xFFFFFFFF;
+	process[2].CpuTime=0;
+	process[2].Context.eip=(unsigned int)TestProcess2;
+	process[2].Context.eflags=0x00000202;
+	process[2].Context.eax=0;
+	process[2].Context.ecx=0;
+	process[2].Context.edx=0;
+	process[2].Context.ebx=0;
+	process[2].Context.esp=(uint)mem_alloc(1000)+1000-5;
+	process[2].Context.ebp=0;
+	process[2].Context.esi=0;
+	process[2].Context.edi=0;
+	process[2].Context.cs=SysCodeSelecter;
+	process[2].Context.es=SysDataSelecter;
+	process[2].Context.ss=SysDataSelecter;
+	process[2].Context.ds=SysDataSelecter;
+	process[2].Context.fs=SysDataSelecter;
+	process[2].Context.gs=SysDataSelecter;
+	process[2].CpuTime=0; 
 
 	CurrentProcID=0;
 	ltr(TssSelecter(0));
