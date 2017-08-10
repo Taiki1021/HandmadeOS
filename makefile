@@ -1,5 +1,3 @@
-TARGET = test.img
-
 TRAPOBJS   = trap.o trapasm.o vectors.o vectors.asm
 MAINOBJS   = main.o wrapper.o video.o gdtidt.o memory.o kbd.o fifo.o proc.o
 
@@ -8,15 +6,16 @@ BOOTOBJS   = boot.bin
 
 OBJS =$(BOOTOBJS) $(KERNELOBJS)
 
-#ディスクイメージ
-#|1         |2                6|7              18|
+
+#OSディスクイメージ
+#|1         |2                6|7              50|
 #|          |                  |                 |
 #|          |                  |                 |
 #| boot.bin |  kernel_data.bin | kernel.code.bin |
 #|          |                  |                 |
 #|          |                  |                 |
-$(TARGET):boot.bin kernel_code.bin kernel_data.bin
-	dd if=/dev/zero of=$@ count=32
+os.img:boot.bin kernel_code.bin kernel_data.bin
+	dd if=/dev/zero of=$@ count=50
 	dd if=boot.bin of=$@ conv=notrunc
 	dd if=kernel_data.bin of=$@ seek=1 conv=notrunc
 	dd if=kernel_code.bin of=$@ seek=6 conv=notrunc

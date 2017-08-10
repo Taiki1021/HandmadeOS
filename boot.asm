@@ -19,6 +19,7 @@ start:
 	mov ax,0x07E0 
 	mov es,ax	;読み込み先のセグメント
 	mov si,5	;読み込むセクタ数
+	mov dl,0	;Aドライブ
 	mov dh,0	;ヘッダ番号
 	mov ch,0	;シリンダ番号
 	mov cl,2	;セクタ番号
@@ -27,12 +28,25 @@ start:
 
 	mov ax,0x1000 
 	mov es,ax	;読み込み先のセグメント
-	mov si,24	;読み込むセクタ数
+	mov si,44	;読み込むセクタ数
+	mov dl,0	;Aドライブ
 	mov dh,0	;ヘッダ番号
 	mov ch,0	;シリンダ番号
 	mov cl,7	;セクタ番号
 	mov bx,0   	;ターゲットアドレス(オフセット)
 	call Load
+
+;データロード
+	;0x16000~0x9f800 がフロッピーイメージ
+;	mov ax,0x1600
+;	mov es,ax	;読み込み先のセグメント
+;	mov si,1100	;読み込むセクタ数
+;	mov dl,1	;Bドライブ
+;	mov dh,0	;ヘッダ番号
+;	mov ch,0	;シリンダ番号
+;	mov cl,1	;セクタ番号
+;	mov bx,0   	;ターゲットアドレス(オフセット)
+;	call Load
 
 	mov dx,0x3F2	;フロッピーディスクのモーターの電源を切る
 	xor al,al
@@ -60,7 +74,6 @@ Load:
 	pushad
 	mov ah,2	;読み込み
 	mov al,1      ;読み込むセクタ数
-	mov dl,0      ;Aドライブ
 Load_Retry:
 	pushad
 	int 0x13	;読み込み

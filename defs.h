@@ -27,6 +27,7 @@
 #define KBDBUFFERSIZE 1024
 
 #define VRAM ((vramdata*)(0xB8000))
+#define DISK ((void*)(0x16000))
 
 
 #define IDTCOUNT	256
@@ -38,6 +39,8 @@
 #define GDT ((struct gdtdata*)(256*8))
 #define PDT ((struct gdtdata*)((uint)GDT+SEGMENTCOUNT*8))
 
+
+
 #define TssSelecter(no) (8*(SEGMENTCOUNT+no))
 
 #define SDEAD	0
@@ -48,6 +51,8 @@
 typedef unsigned short	ushort;
 typedef unsigned int 	uint;
 typedef unsigned char	uchar;
+
+
 
 
 struct TSS{
@@ -64,8 +69,8 @@ typedef struct{
 	uint textsize;
 	void* data;
 	uint datasize;
-	int wchan;
 	uint CpuTime;
+	int* wchan;
 } proc;
 
 struct fifo{
@@ -158,7 +163,7 @@ void 	IDTDUMP(int A);
 
 //kbd.c
 void ISR_KBD(struct trapframe* tf);
-char vgetc();
+void vgets(char* dist);
 void KBD_Check();
 void KBD_Init();
 
@@ -218,3 +223,5 @@ char isfifoend(struct fifo* f);
 void Proc_Init();
 void swtch();
 void IdleProcess();
+void wait(int *wchan);
+void wakeup(int *wchan);

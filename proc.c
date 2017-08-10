@@ -5,6 +5,7 @@ int  CurrentProc;
 
 void IdleProcess(){
 	while(1){
+		KBD_Check();
 		Halt();
 	}
 }
@@ -29,6 +30,16 @@ void TestProcess2(){
 	while(1){
 		sformat(Buf,"This is TestProcess2 %d",A--);
 		CopyFar(SysDataSelecter,(void*)((uint)VRAM+80*2),2,SysDataSelecter,(void*)Buf,1,64);
+	}
+}
+
+void TinyShell(){
+	char Buf[64];
+	Printf("Tiny shell version 1.00\n");
+	while(1){
+		vputs(">");
+		vgets(Buf);
+		vputs(Buf);
 	}
 }
 
@@ -91,7 +102,7 @@ void Proc_Init(){
 	process[1].data=(void*)0;
 	process[1].datasize=0xFFFFFFFF;
 	process[1].CpuTime=0;
-	process[1].Context.eip=(unsigned int)TestProcess1;
+	process[1].Context.eip=(unsigned int)TinyShell;
 	process[1].Context.eflags=0x00000202;
 	process[1].Context.eax=0;
 	process[1].Context.ecx=0;
@@ -137,6 +148,19 @@ void Proc_Init(){
 	ltr(TssSelecter(0));
 
 	return ;
+}
+
+void wait(int *wchan){
+	process[CurrentProc].wchan=wchan;
+	process[CurrentProc].p_stat=SWAIT;
+	swtch();
+}
+
+void wakeup(int *wchan){
+	int A;
+	for(A=0;A<PROCCOUNT;A++){
+		if(process[A].p_stat==SWAIT && process[A].wchan==wchan)process[A].p_stat=SRUN;
+	}
 }
 
 void swtch(){
