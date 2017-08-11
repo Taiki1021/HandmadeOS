@@ -4,7 +4,7 @@ struct fifo* KbdFifo;
 char InputBuf[KBDBUFFERSIZE];
 char *InputBufHead;
 char SHIFT;
-char INPUTEND;
+int  INPUTEND;
 
 char KeyCodeU[0x7F]={
 	0  ,0  ,'!','\"','#','$','%','&','\'','(',')',' ','=','~','\b','\t',
@@ -40,11 +40,14 @@ void KBD_Check(){
 				break;
 			default:
 				if(SHIFT){
-					vputc(KeyCodeU[A]);
 					if(KeyCodeU[A]!='\b'){
 						*InputBufHead++=KeyCodeU[A];
+						vputc(KeyCodeU[A]);
 					}else{
-						InputBufHead--;
+						if((uint)InputBufHead>(uint)InputBuf){
+							InputBufHead--;
+							vputc('\b');
+						}
 					}
 					if(KeyCodeU[A]=='\n'){
 						INPUTEND=1;
@@ -53,11 +56,14 @@ void KBD_Check(){
 						wakeup(&INPUTEND);
 					}
 				}else{	
-					vputc(KeyCodeD[A]);
 					if(KeyCodeD[A]!='\b'){
 						*InputBufHead++=KeyCodeD[A];
+						vputc(KeyCodeD[A]);
 					}else{
-						InputBufHead--;
+						if((uint)InputBufHead>(uint)InputBuf){
+							InputBufHead--;
+							vputc('\b');
+						}
 					}
 					if(KeyCodeD[A]=='\n'){
 						INPUTEND=1;
@@ -94,7 +100,9 @@ void KBD_Init(){
 
 void vgets(char* dist){
 	int A;
+	while(INPUTEND==0)wait(&INPUTEND);
 	INPUTEND=0;
+	wakeup(&INPUTEND);
 	wait(&INPUTEND);
 	for(A=0;InputBuf[A];A++)*dist++=InputBuf[A];
 	*dist=0;

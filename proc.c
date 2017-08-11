@@ -120,6 +120,7 @@ void Proc_Init(){
 	process[1].Context.gs=SysDataSelecter;
 	process[1].CpuTime=0; 
 
+/*
 	process[2].p_stat=SRUN;
 	process[2].text=InitProcess;
 	process[2].textsize=0xFFFF;
@@ -143,6 +144,7 @@ void Proc_Init(){
 	process[2].Context.fs=SysDataSelecter;
 	process[2].Context.gs=SysDataSelecter;
 	process[2].CpuTime=0; 
+*/
 
 	CurrentProc=0;
 	ltr(TssSelecter(0));

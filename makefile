@@ -77,7 +77,7 @@ proc.o:proc.c defs.h
 
 .PHONY: clean sector qemu debug
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f os.img $(OBJS)
 
 sector:
 	objdump -h kernel.o
