@@ -35,7 +35,7 @@ void TestProcess2(){
 
 void TinyShell(){
 	char Buf[64];
-	Printf("Tiny shell version 1.00\n");
+	printf("Tiny shell version 1.00\n");
 	while(1){
 		vputs(">");
 		vgets(Buf);

@@ -190,6 +190,7 @@ void vputs(char* str);
 void clear();
 void schroll();
 void Printf(char* form,...);
+void printf(char* form,...);
 
 //string.c
 void blockcpy(void* dist,void* src,int size);
@@ -227,3 +228,4 @@ void swtch();
 void IdleProcess();
 void wait(int *wchan);
 void wakeup(int *wchan);
+

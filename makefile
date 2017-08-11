@@ -1,10 +1,16 @@
-TRAPOBJS   = trap.o trapasm.o vectors.o vectors.asm
-MAINOBJS   = main.o wrapper.o video.o gdtidt.o memory.o kbd.o fifo.o proc.o
 
-KERNELOBJS = kernel.o kernel_code.bin kernel_data.bin $(MAINOBJS) $(TRAPOBJS)
-BOOTOBJS   = boot.bin
+KERNELOBJS = main.o wrapper.o video.o gdtidt.o trap.o trapasm.o vectors.o memory.o kbd.o fifo.o proc.o string.o
 
-OBJS =$(BOOTOBJS) $(KERNELOBJS)
+OTHEROBJS = vectors.asm kernel.o kernel_data.bin kernel_code.bin boot.bin os.img
+
+OBJS =$(OTHEROBJS) $(KERNELOBJS)
+
+.SUFFIXES: .c .asm .o
+.c.o:
+	gcc -m32 $< -c
+
+.asm.o:
+	nasm -f elf32 $<
 
 
 #OSディスクイメージ
@@ -31,53 +37,44 @@ kernel_code.bin: kernel.o
 kernel_data.bin: kernel.o
 	objcopy -R .note -R .comment -R .eh_frame -R .text           -S -O binary $< $@
 
-kernel.o: main.o wrapper.o video.o gdtidt.o trap.o trapasm.o vectors.o memory.o kbd.o fifo.o proc.o
+kernel.o: $(KERNELOBJS)
 	ld  -o $@ -T kernel.ld $^
 
 #↓カーネル用オブジェクトファイル↓
 
-wrapper.o:wrapper.asm 
-	nasm -f elf32 $<
+main.o	:main.c defs.h
 
-main.o:main.c defs.h
-	gcc  -m32 $< -c
-
-video.o:video.c defs.h
-	gcc -m32 $< -c
+video.o	:video.c defs.h
 
 gdtidt.o:gdtidt.c defs.h
-	gcc -m32 $< -c
 
-trap.o:trap.c defs.h
-	gcc -m32 $< -c
+trap.o	:trap.c defs.h
+
+memory.o:memory.c defs.h
+
+string.o:string.c defs.h
+
+kbd.o	:kbd.c defs.h
+
+fifo.o	:fifo.c defs.h
+
+proc.o	:proc.c defs.h
 
 trapasm.o:trapasm.asm 
-	nasm -f elf32 $<
 
 vectors.o:vectors.asm 
-	nasm -f elf32 $<
+
+wrapper.o:wrapper.asm 
 
 vectors.asm:vectors.pl
 	perl $< > $@
-
-memory.o: memory.c defs.h
-	gcc -m32 $< -c
-
-kbd.o:kbd.c defs.h
-	gcc -m32 $< -c
-
-fifo.o:fifo.c defs.h
-	gcc -m32 $< -c
-
-proc.o:proc.c defs.h
-	gcc -m32 $< -c
 
 
 #↑カーネル用オブジェクトファイル↑
 
 .PHONY: clean sector qemu debug
 clean:
-	rm -f os.img $(OBJS)
+	rm -f $(OBJS)
 
 sector:
 	objdump -h kernel.o

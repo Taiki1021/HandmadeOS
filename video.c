@@ -87,3 +87,13 @@ void Printf(char* form,...){
 	vputs(Buf);
 	va_end(ap);
 }
+
+void printf(char* form,...){
+	char Buf[64];
+	va_list ap;
+
+	va_start(ap,form);
+	vsformat(Buf,form,ap);
+	vputs(Buf);
+	va_end(ap);
+}
