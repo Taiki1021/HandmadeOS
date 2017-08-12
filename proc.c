@@ -35,11 +35,38 @@ void TestProcess2(){
 
 void TinyShell(){
 	char Buf[64];
+	int A,B;
 	printf("Tiny shell version 1.00\n");
 	while(1){
 		vputs(">");
 		vgets(Buf);
-		vputs(Buf);
+		chomp(Buf);
+		if(0){
+		}else if(!strdiff(Buf,"mem")){
+			vputs("start>");vgets(Buf);
+			A=strnum(chomp(Buf));
+			vputs("end>");vgets(Buf);
+			B=strnum(chomp(Buf));
+			mem_dump(A,B);
+		}else if(!strdiff(Buf,"clear")){
+			clear();
+		}else if(!strdiff(Buf,"gdt")){
+			vputs("gdtno>");vgets(Buf);
+			A=strnum(chomp(Buf));
+			GDTDUMP(A);
+		}else if(!strdiff(Buf,"idt")){
+			vputs("idtno>");vgets(Buf);
+			A=strnum(chomp(Buf));
+			IDTDUMP(A);
+		}else if(!strdiff(Buf,"fsys")){
+			FATDump();
+		}else if(!strdiff(Buf,"ls")){
+			tinyls();
+		}else if(!strdiff(Buf,"type")){
+			Printf("filename>");
+			vgets(Buf);
+			type(chomp(Buf));
+		}
 	}
 }
 

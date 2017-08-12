@@ -1,5 +1,5 @@
 
-KERNELOBJS = main.o wrapper.o video.o gdtidt.o trap.o trapasm.o vectors.o memory.o kbd.o fifo.o proc.o string.o
+KERNELOBJS = main.o wrapper.o video.o gdtidt.o trap.o trapasm.o vectors.o memory.o kbd.o fifo.o proc.o string.o fat.o
 
 OTHEROBJS = vectors.asm kernel.o kernel_data.bin kernel_code.bin boot.bin os.img
 
@@ -7,7 +7,7 @@ OBJS =$(OTHEROBJS) $(KERNELOBJS)
 
 .SUFFIXES: .c .asm .o
 .c.o:
-	gcc -m32 $< -c
+	gcc  -m32 $< -c
 
 .asm.o:
 	nasm -f elf32 $<
@@ -60,6 +60,8 @@ fifo.o	:fifo.c defs.h
 
 proc.o	:proc.c defs.h
 
+fat.o	:fat.c defs.h
+
 trapasm.o:trapasm.asm 
 
 vectors.o:vectors.asm 
@@ -80,14 +82,18 @@ sector:
 	objdump -h kernel.o
 
 qemu:
-	qemu-system-x86_64 -m 256 -fda test.img
+	qemu-system-x86_64 -m 256 -fda os.img -fdb data.img
 
 vbox:
 	sudo virtualbox /root/'VirtualBox VMs'/HandmadeOS/HandmadeOS.vbox
 
 debug:
-	qemu-system-x86_64 -S -gdb tcp::1234 -m 256 -fda test.img
+	qemu-system-x86_64 -S -gdb tcp::1234 -m 256 -fda os.img
 
 kernel_disasm:
 	ndisasm kernel_code.bin |less
+
+data.img:
+	dd if=/dev/zero of=data.img count=1100
+	mkfs.vfat -F 32 data.img
 

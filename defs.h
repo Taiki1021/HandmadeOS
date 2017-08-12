@@ -199,6 +199,10 @@ void reverse(void* seq,int blocksize,int count);
 int strlen(char* str);
 void numstr(char* out,int num);
 void sformat(char* dist,char* form,...);
+int strnum(char* str);
+char* chomp(char* str);
+int strdiff(char* s1,char* s2);
+void bufdump(uchar* str,int size);
 
 //wrapper.asm
 void Halt();
@@ -229,3 +233,7 @@ void IdleProcess();
 void wait(int *wchan);
 void wakeup(int *wchan);
 
+//FAT.c
+void FATDump();
+void tinyls();
+void type(char* filename);

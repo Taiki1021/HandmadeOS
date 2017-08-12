@@ -28,6 +28,20 @@ int strlen(char* str){
 	return A;
 }
 
+int strnum(char* str){
+	char S=1;
+	int A=0;
+	if(*str=='-'){
+		S=-1;
+		str++;
+	}
+	do{
+		A*=10;
+		A+=*str-'0';
+	}while(*(++str));
+	return A*S;
+}
+
 void numstr(char* out,int num){
 	char* head=out;
 	char neg=0;
@@ -50,6 +64,14 @@ void numstr(char* out,int num){
 	}
 	*head=0;
 	reverse(out,sizeof(char),strlen(out));
+}
+
+char* chomp(char* str){
+	char* A=str;
+	while(*str++!='\n');
+	str--;
+	*str=0;
+	return A;
 }
 
 void hexstr(char* out,int num,char upper){
@@ -138,3 +160,25 @@ void sformat(char* dist,char* form,...){
 	return ;
 }
 
+
+int strdiff(char* s1,char* s2){
+	for(;*s1==*s2 && *s1!=0;s1++,s2++);
+	return *s1-*s2;
+}
+
+
+void bufdump(uchar* str,int size){
+	int A;
+	Printf("%X\t:",0);
+	for(A=0;A<size;A++){
+		if(str[A]<=0xF)	Printf(" 0");
+		else		Printf(" ");
+
+		Printf("%X",str[A]);
+		if(A%0x10==0x10-1){
+			Printf("\n");
+			Printf("%X\t:",A+1);
+		}
+	}
+	Printf("\n");
+}

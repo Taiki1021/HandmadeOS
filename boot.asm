@@ -37,16 +37,17 @@ start:
 	call Load
 
 ;データロード
-	;0x16000~0x9f800 がフロッピーイメージ
-;	mov ax,0x1600
-;	mov es,ax	;読み込み先のセグメント
-;	mov si,1100	;読み込むセクタ数
-;	mov dl,1	;Bドライブ
-;	mov dh,0	;ヘッダ番号
-;	mov ch,0	;シリンダ番号
-;	mov cl,1	;セクタ番号
-;	mov bx,0   	;ターゲットアドレス(オフセット)
-;	call Load
+;	0x16000~0x9f800 がフロッピーイメージ
+	mov ax,0x1600
+	mov es,ax	;読み込み先のセグメント
+	mov si,127	;読み込むセクタ数
+	mov dl,1	;Bドライブ
+	mov dh,0	;ヘッダ番号
+	mov ch,0	;シリンダ番号
+	mov cl,1	;セクタ番号
+	mov bx,0   	;ターゲットアドレス(オフセット)
+	call Load
+
 
 	mov dx,0x3F2	;フロッピーディスクのモーターの電源を切る
 	xor al,al
