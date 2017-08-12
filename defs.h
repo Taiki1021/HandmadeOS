@@ -1,3 +1,5 @@
+#include<stdarg.h>
+
 #define GDT_TYPE0	1
 #define GDT_TYPE1	2
 #define GDT_TYPE2	4
@@ -190,7 +192,6 @@ void vputs(char* str);
 void clear();
 void schroll();
 void Printf(char* form,...);
-void printf(char* form,...);
 
 //string.c
 void blockcpy(void* dist,void* src,int size);
@@ -203,6 +204,7 @@ int strnum(char* str);
 char* chomp(char* str);
 int strdiff(char* s1,char* s2);
 void bufdump(uchar* str,int size);
+void vsformat(char* dist,char* form,va_list ap);
 
 //wrapper.asm
 void Halt();

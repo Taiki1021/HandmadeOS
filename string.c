@@ -1,5 +1,4 @@
 #include"defs.h"
-#include<stdarg.h>
 
 void blockcpy(void* dist,void* src,int size){
 	int A;

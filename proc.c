@@ -36,7 +36,7 @@ void TestProcess2(){
 void TinyShell(){
 	char Buf[64];
 	int A,B;
-	printf("Tiny shell version 1.00\n");
+	Printf("Tiny shell version 1.00\n");
 	while(1){
 		vputs(">");
 		vgets(Buf);
@@ -84,7 +84,7 @@ int  Proc_Run(void* text,int datasize){
 		if(process[A].p_stat==0)break;
 	}
 	process[A].p_stat=1;
-	process[A].text=0x10000;
+	process[A].text=(void*)0x10000;
 	process[A].textsize=0xFFFFFFFF;
 	process[A].data=mem_alloc(datasize);
 	process[A].datasize=datasize;
@@ -94,7 +94,7 @@ int  Proc_Run(void* text,int datasize){
 	process[A].Context.ecx=0;
 	process[A].Context.edx=0;
 	process[A].Context.ebx=0;
-	process[A].Context.esp=process[A].data+datasize-5;
+	process[A].Context.esp=(uint)process[A].data+datasize-5;
 	process[A].Context.ebp=0;
 	process[A].Context.esi=0;
 	process[A].Context.edi=0;
@@ -113,7 +113,7 @@ void Proc_Init(){
 	IntHandler[0x20]=ISR_TIMER;
 	for(A=0;A<PROCCOUNT;A++)process[A].p_stat=SDEAD;
 	for(A=0;A<PROCCOUNT;A++){
-		GDT_SetBaseAddress(&PDT[A],&process[A].Context);
+		GDT_SetBaseAddress(&PDT[A],(uint)&process[A].Context);
 	}
 
 	process[0].p_stat=SRUN;

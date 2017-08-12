@@ -136,12 +136,12 @@ void IDT_Init(){
 
 	//TODO:全てのハンドラ定義をここに書く
 
-	idtr[0]=(IDTCOUNT*8-1);
-	idtr[1]=(IDTCOUNT*8-1)>>8;
-	idtr[2]=(uint)(IDT);
-	idtr[3]=(uint)(IDT)>>8;
-	idtr[4]=(uint)(IDT)>>16;
-	idtr[5]=(uint)(IDT)>>24;
+	idtr[0]=(uchar)(IDTCOUNT*8-1);
+	idtr[1]=(uchar)((IDTCOUNT*8-1)>>8);
+	idtr[2]=(uchar)((uint)(IDT));
+	idtr[3]=(uchar)((uint)(IDT)>>8);
+	idtr[4]=(uchar)((uint)(IDT)>>16);
+	idtr[5]=(uchar)((uint)(IDT)>>24);
 	lidt(idtr); //IDTの登録
 }
 
@@ -159,12 +159,12 @@ void GDT_Init(){
 		GDT_SET(&GDT[A+SEGMENTCOUNT],104,0x0,	GDT_P|GDT_TYPE3|GDT_TYPE0);
 	}
 
-	gdtr[0]=(GDTCOUNT*8-1);
-	gdtr[1]=(GDTCOUNT*8-1)>>8;
-	gdtr[2]=(uint)(GDT);
-	gdtr[3]=(uint)(GDT)>>8;
-	gdtr[4]=(uint)(GDT)>>16;
-	gdtr[5]=(uint)(GDT)>>24;
+	gdtr[0]=(uchar)(GDTCOUNT*8-1);
+	gdtr[1]=(uchar)((GDTCOUNT*8-1)>>8);
+	gdtr[2]=(uchar)((uint)(GDT));
+	gdtr[3]=(uchar)((uint)(GDT)>>8);
+	gdtr[4]=(uchar)((uint)(GDT)>>16);
+	gdtr[5]=(uchar)((uint)(GDT)>>24);
 	lgdt(gdtr); //GDTの登録
 }
 
