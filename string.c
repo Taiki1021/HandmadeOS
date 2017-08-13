@@ -28,15 +28,31 @@ int strlen(char* str){
 }
 
 int strnum(char* str){
+	char hex=0;
 	char S=1;
 	int A=0;
 	if(*str=='-'){
 		S=-1;
 		str++;
 	}
+	if(*str=='0' && *(str+1)=='x'){
+		hex=1;
+		str+=2;
+	}
 	do{
-		A*=10;
-		A+=*str-'0';
+		if(hex){	
+			A*=0x10;
+			if('0'<=*str && *str<='9'){
+				A+=*str-'0';
+			}else if('A'<=*str && *str<='Z'){
+				A+=*str-'A'+10;
+			}else if('a'<=*str && *str<='z'){
+				A+=*str-'a'+10;
+			}
+		}else{
+			A*=10;
+			A+=*str-'0';
+		}
 	}while(*(++str));
 	return A*S;
 }
@@ -167,7 +183,7 @@ int strdiff(char* s1,char* s2){
 
 
 void bufdump(uchar* str,int size){
-	int A;
+	int A,B,C;
 	Printf("%X\t:",0);
 	for(A=0;A<size;A++){
 		if(str[A]<=0xF)	Printf(" 0");
@@ -175,8 +191,40 @@ void bufdump(uchar* str,int size){
 
 		Printf("%X",str[A]);
 		if(A%0x10==0x10-1){
+			Printf("  ");
+			for(B=0;B<0x10;B++){
+				C=str[A-0x10+1+B];
+				vputc((0x20<=C&&C<=0x7E)?C:'.');
+			}
 			Printf("\n");
 			Printf("%X\t:",A+1);
+		}
+	}
+	Printf("\n");
+}
+
+void memorydump(uchar* start,int size){
+	int A,B,C,D;
+	char Buf[64];
+	Printf("%X\t:",start);
+	D=0;
+	for(A=0;A<size;A++){
+		if(start[A]<=0xF)	Printf(" 0");
+		else		Printf(" ");
+		Printf("%X",start[A]);
+
+		if(A%0x10==0x10-1){
+			Printf("  ");
+			for(B=0;B<0x10;B++){
+				C=start[A-0x10+1+B];
+				vputc((0x20<=C&&C<=0x7E)?C:'.');
+			}
+			Printf("\n");D++;
+			if(D>=24){
+				vgets(Buf);
+				vputc('\b');
+			}
+			Printf("%X\t:",start+A+1);
 		}
 	}
 	Printf("\n");

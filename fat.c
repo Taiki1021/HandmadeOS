@@ -107,6 +107,7 @@ void readcluster(struct FATInfo* fathead,uint cluster,char* buf,int size){
 	else	readcluster(fathead,FATLoad(fathead)[cluster],buf+0x200,size-0x200);
 }
 
+
 int allocatedclusternum(struct FATInfo* fathead,uint cluster){
 	int A;
 	if(0x0FFFFFF8 <= cluster || cluster<=1)return 0;
@@ -133,14 +134,16 @@ void tinyls(){
 	mem_free(rootdir,size*0x200);
 }
 
-void type(char* filename){
-	int size,fsize;
+
+file* open(char* filename){
+	int size;
 	uchar* rootdir;
-	uchar* file;
+	file* f;
 	uchar name[12];
 	uchar buf[12];
 	struct FATInfo F;
 	int A,B,C;
+
 	FATHeadLoad(&F);
 
 	size=allocatedclusternum(&F,2);
@@ -152,20 +155,51 @@ void type(char* filename){
 		name[11]=0;
 		sformat(buf,"%s.%s",name,name+8);
 		if(!strdiff(buf,filename)){
-			fsize=*(uint*)(rootdir+0x40*A+0x40-4);
-			file=mem_alloc(fsize);
-			readcluster(&F,*((ushort*)(rootdir+0x40*A+0x40-6)),file,fsize);
-			//Printf("\n%X\t%X\t%d\n",*((ushort*)(rootdir+0x40*A+0x40-6)),fsize,allocatedclusternum(&F,*((ushort*)(rootdir+0x40*A+0x40-6))));
-			//bufdump(file,fsize);
-			for(C=0;C<fsize;C++){
-				vputc(file[C]);
-			}
-			mem_free(file,fsize);
+			f=mem_alloc(sizeof(file));
+			f->size=*(uint*)(rootdir+0x40*A+0x40-4);
+			f->buf=mem_alloc(f->size);
+			f->pos=0;
+			readcluster(&F,*((ushort*)(rootdir+0x40*A+0x40-6)),f->buf,f->size);
 			mem_free(rootdir,size*0x200);
-			return ;
+			return f;
 		}
 	}
 	mem_free(rootdir,size*0x200);
+	return 0;
+}
+
+void read(file* fp,char* buf,int size){
+	int A,B;
+	if(fp->size >= fp->pos+size){
+		blockcpy(buf,fp->buf+fp->pos,size);
+		fp->pos+=size;
+	}else{
+		blockcpy(buf,fp->buf+fp->pos,fp->size-fp->pos);
+		buf[fp->size-fp->pos]=0;
+		fp->pos=fp->size;
+	}
+}
+
+int feof(file* fp){
+	return fp->pos==fp->size;
+}
+
+void close(file* fp){
+	mem_free(fp->buf,fp->size);
+	mem_free(fp,sizeof(file));
+}
+
+void type(char* filename){
+	file* fp;
+	char buf[65];
+	fp=open(filename);
+	if(fp==0)return;
+	while(!feof(fp)){
+		read(fp,buf,64);
+		buf[64]=0;
+		vputs(buf);
+	}
+	close(fp);
 }
 
 void FATDump(){
@@ -176,3 +210,5 @@ void FATDump(){
 		Printf("0x%X\n",FATLoad(&F)[A]);
 	}
 }
+
+

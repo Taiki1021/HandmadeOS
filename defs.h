@@ -205,6 +205,7 @@ char* chomp(char* str);
 int strdiff(char* s1,char* s2);
 void bufdump(uchar* str,int size);
 void vsformat(char* dist,char* form,va_list ap);
+void memdump(uchar* start,int size);
 
 //wrapper.asm
 void Halt();
@@ -236,6 +237,18 @@ void wait(int *wchan);
 void wakeup(int *wchan);
 
 //FAT.c
-void FATDump();
+typedef struct{
+	uint size;
+	uint pos;
+	uchar* buf;
+} file;
+
 void tinyls();
 void type(char* filename);
+
+file* open(char* filename);
+void read(file* fp,char* buf,int size);
+void close(file* fp);
+int feof(file* fp);
+
+void FATDump();

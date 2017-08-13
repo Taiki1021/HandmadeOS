@@ -19,8 +19,13 @@ void TestProcess1(){
 	int A;
 	char Buf[64];
 	while(1){
-		sformat(Buf,"This is TestProcess1 %d",A++);
-		CopyFar(SysDataSelecter,(void*)((uint)VRAM+0*2),2,SysDataSelecter,(void*)Buf,1,64);
+		clear();
+		for(A=0;A<PROCCOUNT;A++){
+			switch(process[A].p_stat){
+			case SRUN:Printf("%d:\tSRUN\t%d\n",A,process[A].CpuTime);break;
+			case SWAIT:Printf("%d:\tSWAIT\t%d\n",A,process[A].CpuTime);break;
+			}
+		}
 	}
 }
 
@@ -66,6 +71,32 @@ void TinyShell(){
 			Printf("filename>");
 			vgets(Buf);
 			type(chomp(Buf));
+		}else if(!strdiff(Buf,"help")){
+			Printf("mem\n");
+			Printf("clear\n");
+			Printf("gdt\n");
+			Printf("idt\n");
+			Printf("fsys\n");
+			Printf("ls\n");
+			Printf("type\n");
+			Printf("help\n");
+			Printf("memdump\n");
+			Printf("ps\n");
+		}else if(!strdiff(Buf,"memdump")){
+			vputs("start>");vgets(Buf);
+			A=strnum(chomp(Buf));
+			vputs("size>");vgets(Buf);
+			B=strnum(chomp(Buf));
+			memorydump((uchar*)A,B);
+		}else if(!strdiff(Buf,"ps")){
+			for(A=0;A<PROCCOUNT;A++){
+				switch(process[A].p_stat){
+				case SRUN:Printf("%d:\tSRUN\t%d\n",A,process[A].CpuTime);break;
+				case SWAIT:Printf("%d:\tSWAIT\t%d\n",A,process[A].CpuTime);break;
+				}
+			}
+		}else{
+			Printf("Bad Command\n");
 		}
 	}
 }
@@ -147,8 +178,7 @@ void Proc_Init(){
 	process[1].Context.gs=SysDataSelecter;
 	process[1].CpuTime=0; 
 
-/*
-	process[2].p_stat=SRUN;
+	process[2].p_stat=SDEAD;
 	process[2].text=InitProcess;
 	process[2].textsize=0xFFFF;
 	process[2].data=(void*)0;
@@ -171,8 +201,30 @@ void Proc_Init(){
 	process[2].Context.fs=SysDataSelecter;
 	process[2].Context.gs=SysDataSelecter;
 	process[2].CpuTime=0; 
-*/
 
+	process[3].p_stat=SDEAD;
+	process[3].text=InitProcess;
+	process[3].textsize=0xFFFF;
+	process[3].data=(void*)0;
+	process[3].datasize=0xFFFFFFFF;
+	process[3].CpuTime=0;
+	process[3].Context.eip=(unsigned int)TestProcess1;
+	process[3].Context.eflags=0x00000202;
+	process[3].Context.eax=0;
+	process[3].Context.ecx=0;
+	process[3].Context.edx=0;
+	process[3].Context.ebx=0;
+	process[3].Context.esp=(uint)mem_alloc(1000)+1000-5;
+	process[3].Context.ebp=0;
+	process[3].Context.esi=0;
+	process[3].Context.edi=0;
+	process[3].Context.cs=SysCodeSelecter;
+	process[3].Context.es=SysDataSelecter;
+	process[3].Context.ss=SysDataSelecter;
+	process[3].Context.ds=SysDataSelecter;
+	process[3].Context.fs=SysDataSelecter;
+	process[3].Context.gs=SysDataSelecter;
+	process[3].CpuTime=0; 
 	CurrentProc=0;
 	ltr(TssSelecter(0));
 
