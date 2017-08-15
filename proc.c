@@ -48,11 +48,7 @@ void TinyShell(){
 		chomp(Buf);
 		if(0){
 		}else if(!strdiff(Buf,"mem")){
-			vputs("start>");vgets(Buf);
-			A=strnum(chomp(Buf));
-			vputs("end>");vgets(Buf);
-			B=strnum(chomp(Buf));
-			mem_dump(A,B);
+			mem_dump(0,mem_num());
 		}else if(!strdiff(Buf,"clear")){
 			clear();
 		}else if(!strdiff(Buf,"gdt")){
