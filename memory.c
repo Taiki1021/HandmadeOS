@@ -82,51 +82,41 @@ int mem_num(){
 }
 
 
+void conj(int A){
+	int B;
+	if((uint)FreeMem[A].addr+(uint)FreeMem[A].size==(uint)FreeMem[A+1].addr){
+		FreeMem[A].size+=FreeMem[A+1].size;
+		for(B=A+1;B<SEGMENTTABLESIZE-1-1;B++){
+			FreeMem[B].addr=FreeMem[B+1].addr;
+			FreeMem[B].size=FreeMem[B+1].size;
+		}
+	}
+}
 
 void mem_free(void* address,int size){
 	int A,B;
 
-	if( (uint)FreeMem[0].addr <= (uint)address && (uint)address < (uint)FreeMem[0].addr+(uint)FreeMem[0].size)return;
 	if((uint)address<(uint)FreeMem[0].addr){
-		if((uint)address+size==(uint)FreeMem[0].addr){
-			FreeMem[0].addr=address;
-		}else{
-			for(B=SEGMENTTABLESIZE-1;B>=1;B--){
-				FreeMem[B].addr=FreeMem[B-1].addr;
-				FreeMem[B].size=FreeMem[B-1].size;
-			}
-			FreeMem[0].addr=address;
-			FreeMem[0].size=size;
+		for(B=SEGMENTTABLESIZE-1;B>0;B--){
+			FreeMem[B].addr=FreeMem[B-1].addr;
+			FreeMem[B].size=FreeMem[B-1].size;
 		}
+		FreeMem[0].addr=address;
+		FreeMem[0].size=size;
+		conj(0);
+		return;
 	}
 
 	for(A=0;A<SEGMENTTABLESIZE-1;A++){
-		if( (uint)FreeMem[A].addr <= (uint)address && (uint)address < (uint)FreeMem[A].addr+(uint)FreeMem[A].size)return;
-		if( ((uint)FreeMem[A].addr < (uint)address) && ((uint)address <= (uint)FreeMem[A+1].addr) ){
-			if(FreeMem[A].addr+FreeMem[A].size == address){
-				FreeMem[A].size += size;
-				if(FreeMem[A].addr+FreeMem[A].size == FreeMem[A+1].addr){
-					FreeMem[A].size += FreeMem[A+1].size;
-					for(B=A+1;B<SEGMENTTABLESIZE-1;B++){
-						FreeMem[B].addr = FreeMem[B+1].addr;
-						FreeMem[B].size = FreeMem[B+1].size;
-					}
-					FreeMem[B].addr=0;
-					FreeMem[B].size=0;
-				}
-				return ;
-			}else if((uint)address+size == (uint)FreeMem[A+1].addr){
-				FreeMem[A].addr = address;
-				FreeMem[A].size += size;
-				
-				return ;
-			}
-			for(B=SEGMENTTABLESIZE-1;B>=A+2;B--){
+		if( ((uint)FreeMem[A].addr + (uint)FreeMem[A].size <= (uint)address) && ((uint)address < (uint)FreeMem[A+1].addr) ){
+			for(B=SEGMENTTABLESIZE-1;B>A+1;B--){
 				FreeMem[B].addr=FreeMem[B-1].addr;
 				FreeMem[B].size=FreeMem[B-1].size;
 			}
 			FreeMem[A+1].addr=address;
 			FreeMem[A+1].size=size;
+			conj(A+1);
+			conj(A);
 			return ;
 		}
 	}
