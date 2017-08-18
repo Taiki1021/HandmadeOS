@@ -256,11 +256,15 @@ void swtch(){
 	B=process[0].CpuTime;
 	C=0;
 	for(A=0;A<PROCCOUNT;A++){
-		if((process[A].p_stat==SRUN) && (B>process[A].CpuTime)){
+		if(A!=CurrentProc)process[A].CpuTime++;
+	}
+	for(A=0;A<PROCCOUNT;A++){
+		if((process[A].p_stat==SRUN) && (B<process[A].CpuTime)){
 			B=process[A].CpuTime;
 			C=A;
 		}
 	}
+	process[C].CpuTime=0;
 
 	if(CurrentProc!=C){
 		CurrentProc=C;

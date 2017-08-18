@@ -77,6 +77,7 @@ void pload(char* filename){
 	Printf("e_entry:%x\n",head.e_entry);
 	
 */
+/*
 	text=(uchar*)mem_alloc(0x200);
 	seek(fp,0x90);
 	read(fp,text,0x200);
@@ -87,9 +88,10 @@ void pload(char* filename){
 	read(fp,process[P].data,phead[0].p_filesz);
 
 	process[P].textsize=0x200;
-	process[P].CpuTime=500;
+	process[P].CpuTime=0;
 
 	process[P].Context.eip=0x94;
+*/
 
 //	process[P].p_stat=SWAIT;
 //	Printf("text:%X\n",text+process[P].Context.eip);
